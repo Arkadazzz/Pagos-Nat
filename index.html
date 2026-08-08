@@ -103,8 +103,8 @@
             <img src="NAT_Blanco.jpg" alt="Nat Producciones" onerror="this.src='NAT_Blanco.png'">
             <h2 style="margin-top:0; color:var(--text);">Acceso Privado</h2>
             <form id="login-form" style="display: flex; flex-direction: column; gap: 1rem;">
-                <input type="email" id="email" placeholder="Correo electrónico" required>
-                <input type="password" id="password" placeholder="Contraseña" required>
+                <input type="email" id="email" placeholder="Correo electrónico" required autocomplete="off">
+                <input type="password" id="password" placeholder="Contraseña" required autocomplete="off">
                 <button type="submit">Ingresar al Sistema</button>
             </form>
             <div id="login-error" class="error-msg"></div>
@@ -172,7 +172,7 @@
     <script>
         // --- CONFIGURACIÓN DE FIREBASE ---
         const firebaseConfig = {
-            apiKey: "AIzaSyB7wjxXdNl4LF6l5QB8SgbvsrJRY0kYk3Q",
+            apiKey: "AIzaSyB7wjxXdNl4LF6l5QB8SgbvsrJRY0KYk3Q",
             authDomain: "nat-pagos.firebaseapp.com",
             databaseURL: "https://nat-pagos-default-rtdb.firebaseio.com", 
             projectId: "nat-pagos",
@@ -191,14 +191,14 @@
         // --- SISTEMA DE LOGIN ---
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
+            const email = document.getElementById('email').value.trim();
             const pass = document.getElementById('password').value;
             const btn = e.target.querySelector('button');
             btn.innerHTML = "Cargando...";
             
             auth.signInWithEmailAndPassword(email, pass)
                 .catch(error => {
-                    document.getElementById('login-error').innerText = "Error técnico: " + error.code;
+                    document.getElementById('login-error').innerText = "Error al ingresar: " + error.message;
                     btn.innerHTML = "Ingresar al Sistema";
                 });
         });
