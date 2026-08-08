@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nat Producciones - Pagos</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        h1 { margin: 0; color: var(--primary); }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            padding: 1rem 2rem;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            cursor: pointer;
+            color: var(--text-light);
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover { color: var(--primary); }
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+        }
+
+        input, select {
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            height: 45px;
+        }
+
+        button:hover { background-color: var(--primary-hover); }
+        button.btn-delete { background-color: #ef4444; }
+        button.btn-delete:hover { background-color: #dc2626; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th { background-color: #f9fafb; font-weight: 600; }
+
+        .worker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .worker-total {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #059669;
+        }
+
+        .attendance-form {
+            background-color: #f9fafb;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Nat Producciones - Sistema de Pagos</h1>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('programas')">Programas y Tarifas</button>
+        <button class="tab-btn" onclick="switchTab('trabajadores')">Trabajadores y Asistencias</button>
+    </div>
+
+    <div class="container">
+        <!-- PESTAÑA PROGRAMAS -->
+        <div id="programas" class="tab-content active">
+            <div class="card">
+                <h2>Agregar Nuevo Programa/Serie</h2>
+                <form id="form-programa" class="form-group" onsubmit="agregarPrograma(event)">
+                    <div class="input-group">
+                        <label for="prog-nombre">Nombre del Programa</label>
+                        <input type="text" id="prog-nombre" placeholder="Ej. Película X" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="prog-monto">Monto por Asistencia ($)</label>
+                        <input type="number" id="prog-monto" placeholder="Ej. 25000" required min="0">
+                    </div>
+                    <button type="submit">Guardar Programa</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Programas Registrados</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Monto a Pagar</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-programas">
+                        <!-- Se llena con JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PESTAÑA TRABAJADORES -->
+        <div id="trabajadores" class="tab-content">
+            <div class="card">
+                <h2>Registrar Nuevo Trabajador</h2>
+                <form id="form-trabajador" class="form-group" onsubmit="agregarTrabajador(event)">
+                    <div class="input-group">
+                        <label for="trab-nombre">Nombre del Trabajador</label>
+                        <input type="text" id="trab-nombre" placeholder="Ej. Juan Pérez" required>
+                    </div>
+                    <button type="submit">Añadir Trabajador</button>
+                </form>
+            </div>
+
+            <div id="lista-trabajadores">
+                <!-- Se llena con JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inicializar datos desde localStorage
+        let programas = JSON.parse(localStorage.getItem('nat_programas')) || [];
+        let trabajadores = JSON.parse(localStorage.getItem('nat_trabajadores')) || [];
+
+        // Generador de ID único simple
+        const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
+
+        // Cambiar pestañas
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // --- LÓGICA DE PROGRAMAS ---
+        function agregarPrograma(e) {
+            e.preventDefault();
+            const nombre = document.getElementById('prog-nombre').value;
+            const monto = parseFloat(document.getElementById('prog-monto').value);
+
+            programas.push({ id: generateId(), nombre, monto });
+            guardarDatos();
+            renderizarProgramas();
+            actualizarSelectsProgramas();
+            e.target.reset();
+        }
+
+        function eliminarPrograma(id) {
+            programas = programas.filter(p => p.id !== id);
+            guardarDatos();
+            renderizarProgramas();
+            actualizarSelectsProgramas();
+        }
+
+        function renderizarProgramas() {
+            const tbody = document.getElementById('lista-programas');
+            tbody.innerHTML = '';
+            
+            programas.forEach(prog => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${prog.nombre}</td>
+                        <td>$${prog.monto.toLocaleString('es-CL')}</td>
+                        <td><button class="btn-delete" onclick="eliminarPrograma('${prog.id}')">Eliminar</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- LÓGICA DE TRABAJADORES ---
+        function agregarTrabajador(e) {
+            e.preventDefault();
+            const nombre = document.getElementById('trab-nombre').value;
+
+            trabajadores.push({ id: generateId(), nombre, asistencias: [] });
+            guardarDatos();
+            renderizarTrabajadores();
+            e.target.reset();
+        }
+
+        function agregarAsistencia(e, trabajadorId) {
+            e.preventDefault();
+            const form = e.target;
+            const diaNombre = form.querySelector('.asis-dianombre').value;
+            const fecha = form.querySelector('.asis-fecha').value;
+            const programaId = form.querySelector('.asis-programa').value;
+
+            const programa = programas.find(p => p.id === programaId);
+            if (!programa) return alert("Selecciona un programa válido");
+
+            const trabajador = trabajadores.find(t => t.id === trabajadorId);
+            
+            // Guardamos el monto exacto en este momento por si luego el programa cambia de precio
+            trabajador.asistencias.push({
+                id: generateId(),
+                diaNombre,
+                fecha,
+                programaNombre: programa.nombre,
+                montoCobrado: programa.monto
+            });
+
+            guardarDatos();
+            renderizarTrabajadores();
+        }
+
+        function eliminarAsistencia(trabajadorId, asistenciaId) {
+            const trabajador = trabajadores.find(t => t.id === trabajadorId);
+            trabajador.asistencias = trabajador.asistencias.filter(a => a.id !== asistenciaId);
+            guardarDatos();
+            renderizarTrabajadores();
+        }
+
+        function renderizarTrabajadores() {
+            const contenedor = document.getElementById('lista-trabajadores');
+            contenedor.innerHTML = '';
+
+            let opcionesProgramas = programas.map(p => `<option value="${p.id}">${p.nombre} ($${p.monto})</option>`).join('');
+
+            trabajadores.forEach(trab => {
+                // Calcular total
+                const totalMonto = trab.asistencias.reduce((sum, asis) => sum + asis.montoCobrado, 0);
+
+                let filasAsistencias = trab.asistencias.map(asis => `
+                    <tr>
+                        <td>${asis.fecha}</td>
+                        <td>${asis.diaNombre}</td>
+                        <td>${asis.programaNombre}</td>
+                        <td>$${asis.montoCobrado.toLocaleString('es-CL')}</td>
+                        <td><button class="btn-delete" style="padding: 0.25rem 0.5rem; height: auto;" onclick="eliminarAsistencia('${trab.id}', '${asis.id}')">Quitar</button></td>
+                    </tr>
+                `).join('');
+
+                if (trab.asistencias.length === 0) {
+                    filasAsistencias = `<tr><td colspan="5" style="text-align:center; color:#6b7280;">No hay asistencias registradas aún.</td></tr>`;
+                }
+
+                contenedor.innerHTML += `
+                    <div class="card">
+                        <div class="worker-header">
+                            <h2>${trab.nombre}</h2>
+                            <div class="worker-total">Total a Pagar: $${totalMonto.toLocaleString('es-CL')}</div>
+                        </div>
+                        
+                        <form class="attendance-form form-group" onsubmit="agregarAsistencia(event, '${trab.id}')">
+                            <div class="input-group">
+                                <label>Día (Ej. Lunes)</label>
+                                <input type="text" class="asis-dianombre" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Fecha</label>
+                                <input type="date" class="asis-fecha" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Programa Asistido</label>
+                                <select class="asis-programa" required>
+                                    <option value="">Seleccione un programa...</option>
+                                    ${opcionesProgramas}
+                                </select>
+                            </div>
+                            <button type="submit">Agregar Asistencia</button>
+                        </form>
+
+                        <h3>Desglose de Asistencias</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Día</th>
+                                    <th>Programa</th>
+                                    <th>Monto</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${filasAsistencias}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            });
+        }
+
+        function actualizarSelectsProgramas() {
+            // Re-renderizar trabajadores para que los selects se actualicen si se añadió un programa nuevo
+            renderizarTrabajadores();
+        }
+
+        // --- UTILIDADES ---
+        function guardarDatos() {
+            localStorage.setItem('nat_programas', JSON.stringify(programas));
+            localStorage.setItem('nat_trabajadores', JSON.stringify(trabajadores));
+        }
+
+        // Inicialización al cargar la página
+        renderizarProgramas();
+        renderizarTrabajadores();
+    </script>
+</body>
+</html>
