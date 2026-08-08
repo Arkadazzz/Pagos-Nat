@@ -198,7 +198,7 @@
             
             auth.signInWithEmailAndPassword(email, pass)
                 .catch(error => {
-                    document.getElementById('login-error').innerText = "Credenciales incorrectas o usuario no existe.";
+                    document.getElementById('login-error').innerText = "Error técnico: " + error.code;
                     btn.innerHTML = "Ingresar al Sistema";
                 });
         });
