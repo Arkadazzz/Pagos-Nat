@@ -6,13 +6,31 @@
     <title>Nat Producciones - Pagos</title>
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
+            /* TEMA CLARO (Blanco y Morado) */
+            --primary: #9b66c4; /* Morado Nat */
+            --primary-hover: #8354a8;
             --bg: #f3f4f6;
             --card-bg: #ffffff;
             --text: #1f2937;
             --text-light: #6b7280;
             --border: #e5e7eb;
+            --success: #059669;
+            --form-bg: #f9fafb;
+            --header-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            /* TEMA OSCURO (Negro y Morado) */
+            --primary: #a778cc; 
+            --primary-hover: #c09ce0;
+            --bg: #121212;
+            --card-bg: #1e1e1e;
+            --text: #e5e7eb;
+            --text-light: #9ca3af;
+            --border: #374151;
+            --success: #10b981;
+            --form-bg: #2d2d2d;
+            --header-bg: #000000;
         }
         
         body {
@@ -21,17 +39,44 @@
             color: var(--text);
             margin: 0;
             padding: 0;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         header {
-            background-color: var(--card-bg);
-            padding: 1.5rem;
-            text-align: center;
+            background-color: var(--header-bg);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: background-color 0.3s;
         }
 
-        h1 { margin: 0; color: var(--primary); }
+        .logo {
+            height: 60px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .theme-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .theme-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
 
         .tabs {
             display: flex;
@@ -59,7 +104,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 2rem auto;
             padding: 0 1rem;
         }
@@ -73,21 +118,41 @@
             padding: 1.5rem;
             margin-bottom: 1.5rem;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow-x: auto;
+            transition: background-color 0.3s;
         }
 
-        .form-group {
-            display: flex;
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
             margin-bottom: 1rem;
             align-items: flex-end;
-            flex-wrap: wrap;
         }
 
         .input-group {
             display: flex;
             flex-direction: column;
-            flex: 1;
-            min-width: 200px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 1.2rem;
+            height: 1.2rem;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+        
+        .checkbox-group label {
+            margin-bottom: 0;
+            cursor: pointer;
+            color: var(--text);
         }
 
         label {
@@ -102,6 +167,9 @@
             border: 1px solid var(--border);
             border-radius: 6px;
             font-size: 1rem;
+            background-color: var(--card-bg);
+            color: var(--text);
+            transition: background-color 0.3s, color 0.3s;
         }
 
         button {
@@ -120,11 +188,15 @@
         button:hover { background-color: var(--primary-hover); }
         button.btn-delete { background-color: #ef4444; }
         button.btn-delete:hover { background-color: #dc2626; }
+        
+        .btn-full { width: 100%; margin-top: 1rem; background-color: var(--success); }
+        .btn-full:hover { background-color: #047857; }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
+            min-width: 700px;
         }
 
         th, td {
@@ -133,7 +205,10 @@
             border-bottom: 1px solid var(--border);
         }
 
-        th { background-color: #f9fafb; font-weight: 600; }
+        th { background-color: var(--form-bg); font-weight: 600; }
+        
+        .text-sm { font-size: 0.85rem; color: var(--text-light); display: block; }
+        .monto-total-td { font-weight: bold; color: var(--success); }
 
         .worker-header {
             display: flex;
@@ -142,26 +217,57 @@
             border-bottom: 2px solid var(--bg);
             padding-bottom: 1rem;
             margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .worker-total {
             font-size: 1.25rem;
             font-weight: bold;
-            color: #059669;
+            color: var(--success);
+            background: var(--form-bg);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
         }
 
         .attendance-form {
-            background-color: #f9fafb;
+            background-color: var(--form-bg);
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            transition: background-color 0.3s;
+        }
+        
+        .section-title {
+            font-size: 1rem;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .extra-fields {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed var(--border);
+            background-color: var(--bg);
             padding: 1rem;
             border-radius: 6px;
-            margin-bottom: 1rem;
         }
+        .extra-fields.active { display: grid; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Nat Producciones - Sistema de Pagos</h1>
+        <img src="NAT_Blanco.jpg" alt="Nat Producciones" class="logo">
+        <button id="theme-toggle" class="theme-btn" onclick="toggleTheme()">🌙 Modo Oscuro</button>
     </header>
 
     <div class="tabs">
@@ -174,13 +280,13 @@
         <div id="programas" class="tab-content active">
             <div class="card">
                 <h2>Agregar Nuevo Programa/Serie</h2>
-                <form id="form-programa" class="form-group" onsubmit="agregarPrograma(event)">
+                <form id="form-programa" class="form-grid" onsubmit="agregarPrograma(event)">
                     <div class="input-group">
                         <label for="prog-nombre">Nombre del Programa</label>
                         <input type="text" id="prog-nombre" placeholder="Ej. Película X" required>
                     </div>
                     <div class="input-group">
-                        <label for="prog-monto">Monto por Asistencia ($)</label>
+                        <label for="prog-monto">Monto Base por Asistencia ($)</label>
                         <input type="number" id="prog-monto" placeholder="Ej. 25000" required min="0">
                     </div>
                     <button type="submit">Guardar Programa</button>
@@ -208,7 +314,7 @@
         <div id="trabajadores" class="tab-content">
             <div class="card">
                 <h2>Registrar Nuevo Trabajador</h2>
-                <form id="form-trabajador" class="form-group" onsubmit="agregarTrabajador(event)">
+                <form id="form-trabajador" class="form-grid" onsubmit="agregarTrabajador(event)">
                     <div class="input-group">
                         <label for="trab-nombre">Nombre del Trabajador</label>
                         <input type="text" id="trab-nombre" placeholder="Ej. Juan Pérez" required>
@@ -224,28 +330,44 @@
     </div>
 
     <script>
-        // Inicializar datos desde localStorage
+        // --- MANEJO DEL MODO CLARO/OSCURO ---
+        function toggleTheme() {
+            const body = document.documentElement;
+            const btn = document.getElementById('theme-toggle');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                localStorage.setItem('nat_theme', 'light');
+                btn.innerHTML = '🌙 Modo Oscuro';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('nat_theme', 'dark');
+                btn.innerHTML = '☀️ Modo Claro';
+            }
+        }
+
+        // Cargar preferencia guardada al inicio
+        if (localStorage.getItem('nat_theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-toggle').innerHTML = '☀️ Modo Claro';
+        }
+
+        // --- LÓGICA DE LA APP ---
         let programas = JSON.parse(localStorage.getItem('nat_programas')) || [];
         let trabajadores = JSON.parse(localStorage.getItem('nat_trabajadores')) || [];
 
-        // Generador de ID único simple
         const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
 
-        // Cambiar pestañas
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            
             document.getElementById(tabId).classList.add('active');
             event.currentTarget.classList.add('active');
         }
 
-        // --- LÓGICA DE PROGRAMAS ---
         function agregarPrograma(e) {
             e.preventDefault();
             const nombre = document.getElementById('prog-nombre').value;
             const monto = parseFloat(document.getElementById('prog-monto').value);
-
             programas.push({ id: generateId(), nombre, monto });
             guardarDatos();
             renderizarProgramas();
@@ -263,7 +385,6 @@
         function renderizarProgramas() {
             const tbody = document.getElementById('lista-programas');
             tbody.innerHTML = '';
-            
             programas.forEach(prog => {
                 tbody.innerHTML += `
                     <tr>
@@ -275,15 +396,24 @@
             });
         }
 
-        // --- LÓGICA DE TRABAJADORES ---
         function agregarTrabajador(e) {
             e.preventDefault();
             const nombre = document.getElementById('trab-nombre').value;
-
             trabajadores.push({ id: generateId(), nombre, asistencias: [] });
             guardarDatos();
             renderizarTrabajadores();
             e.target.reset();
+        }
+
+        function toggleExtraFields(checkbox) {
+            const extraContainer = checkbox.closest('form').querySelector('.extra-fields');
+            if (checkbox.checked) {
+                extraContainer.classList.add('active');
+            } else {
+                extraContainer.classList.remove('active');
+                extraContainer.querySelector('.asis-monto-extra').value = '';
+                extraContainer.querySelector('.asis-detalle-extra').value = '';
+            }
         }
 
         function agregarAsistencia(e, trabajadorId) {
@@ -293,18 +423,46 @@
             const fecha = form.querySelector('.asis-fecha').value;
             const programaId = form.querySelector('.asis-programa').value;
 
+            const noAlmuerzo = form.querySelector('.asis-noalmuerzo').checked;
+            const cantInvitados = parseInt(form.querySelector('.asis-invitados').value) || 0;
+            const hayExtra = form.querySelector('.asis-toggle-extra').checked;
+            const montoExtra = hayExtra ? (parseFloat(form.querySelector('.asis-monto-extra').value) || 0) : 0;
+            const detalleExtra = hayExtra ? form.querySelector('.asis-detalle-extra').value : "";
+
             const programa = programas.find(p => p.id === programaId);
             if (!programa) return alert("Selecciona un programa válido");
 
             const trabajador = trabajadores.find(t => t.id === trabajadorId);
             
-            // Guardamos el monto exacto en este momento por si luego el programa cambia de precio
+            let montoExtras = 0;
+            let desgloseExtras = [];
+
+            if (noAlmuerzo) {
+                montoExtras += 5000;
+                desgloseExtras.push("Sin almuerzo (+$5.000)");
+            }
+            if (cantInvitados > 0) {
+                const totalInvitados = cantInvitados * 1000;
+                montoExtras += totalInvitados;
+                desgloseExtras.push(`${cantInvitados} Invitado(s) (+$${totalInvitados.toLocaleString('es-CL')})`);
+            }
+            if (montoExtra > 0) {
+                montoExtras += montoExtra;
+                desgloseExtras.push(`${detalleExtra || 'Bono extra'} (+$${montoExtra.toLocaleString('es-CL')})`);
+            }
+
+            const totalDia = programa.monto + montoExtras;
+
             trabajador.asistencias.push({
                 id: generateId(),
                 diaNombre,
                 fecha,
                 programaNombre: programa.nombre,
-                montoCobrado: programa.monto
+                montoBase: programa.monto,
+                montoExtras: montoExtras,
+                detalleExtras: desgloseExtras.join(' | '),
+                totalDia: totalDia,
+                montoCobrado: totalDia 
             });
 
             guardarDatos();
@@ -312,34 +470,45 @@
         }
 
         function eliminarAsistencia(trabajadorId, asistenciaId) {
-            const trabajador = trabajadores.find(t => t.id === trabajadorId);
-            trabajador.asistencias = trabajador.asistencias.filter(a => a.id !== asistenciaId);
-            guardarDatos();
-            renderizarTrabajadores();
+            if(confirm("¿Estás seguro de eliminar este registro?")) {
+                const trabajador = trabajadores.find(t => t.id === trabajadorId);
+                trabajador.asistencias = trabajador.asistencias.filter(a => a.id !== asistenciaId);
+                guardarDatos();
+                renderizarTrabajadores();
+            }
         }
 
         function renderizarTrabajadores() {
             const contenedor = document.getElementById('lista-trabajadores');
             contenedor.innerHTML = '';
-
-            let opcionesProgramas = programas.map(p => `<option value="${p.id}">${p.nombre} ($${p.monto})</option>`).join('');
+            let opcionesProgramas = programas.map(p => `<option value="${p.id}">${p.nombre} (Base: $${p.monto})</option>`).join('');
 
             trabajadores.forEach(trab => {
-                // Calcular total
-                const totalMonto = trab.asistencias.reduce((sum, asis) => sum + asis.montoCobrado, 0);
+                const totalMonto = trab.asistencias.reduce((sum, asis) => {
+                    return sum + (asis.totalDia !== undefined ? asis.totalDia : asis.montoCobrado);
+                }, 0);
 
-                let filasAsistencias = trab.asistencias.map(asis => `
+                let filasAsistencias = trab.asistencias.map(asis => {
+                    const base = asis.montoBase !== undefined ? asis.montoBase : asis.montoCobrado;
+                    const totalD = asis.totalDia !== undefined ? asis.totalDia : asis.montoCobrado;
+                    const strExtras = asis.detalleExtras ? asis.detalleExtras : (asis.montoExtras ? 'Extras aplicados' : 'Ninguno');
+
+                    return `
                     <tr>
-                        <td>${asis.fecha}</td>
-                        <td>${asis.diaNombre}</td>
+                        <td>${asis.fecha}<span class="text-sm">${asis.diaNombre}</span></td>
                         <td>${asis.programaNombre}</td>
-                        <td>$${asis.montoCobrado.toLocaleString('es-CL')}</td>
-                        <td><button class="btn-delete" style="padding: 0.25rem 0.5rem; height: auto;" onclick="eliminarAsistencia('${trab.id}', '${asis.id}')">Quitar</button></td>
+                        <td>$${base.toLocaleString('es-CL')}</td>
+                        <td>
+                            $${(asis.montoExtras || 0).toLocaleString('es-CL')}
+                            <span class="text-sm">${strExtras}</span>
+                        </td>
+                        <td class="monto-total-td">$${totalD.toLocaleString('es-CL')}</td>
+                        <td><button class="btn-delete" style="padding: 0.25rem 0.5rem; height: auto;" onclick="eliminarAsistencia('${trab.id}', '${asis.id}')">X</button></td>
                     </tr>
-                `).join('');
+                `}).join('');
 
                 if (trab.asistencias.length === 0) {
-                    filasAsistencias = `<tr><td colspan="5" style="text-align:center; color:#6b7280;">No hay asistencias registradas aún.</td></tr>`;
+                    filasAsistencias = `<tr><td colspan="6" style="text-align:center; color: var(--text-light);">No hay asistencias registradas aún.</td></tr>`;
                 }
 
                 contenedor.innerHTML += `
@@ -349,34 +518,67 @@
                             <div class="worker-total">Total a Pagar: $${totalMonto.toLocaleString('es-CL')}</div>
                         </div>
                         
-                        <form class="attendance-form form-group" onsubmit="agregarAsistencia(event, '${trab.id}')">
-                            <div class="input-group">
-                                <label>Día (Ej. Lunes)</label>
-                                <input type="text" class="asis-dianombre" required>
+                        <form class="attendance-form" onsubmit="agregarAsistencia(event, '${trab.id}')">
+                            <h3 class="section-title">1. Datos de la jornada</h3>
+                            <div class="form-grid">
+                                <div class="input-group">
+                                    <label>Fecha</label>
+                                    <input type="date" class="asis-fecha" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Día (Ej. Lunes)</label>
+                                    <input type="text" class="asis-dianombre" placeholder="Lunes" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Programa Asistido</label>
+                                    <select class="asis-programa" required>
+                                        <option value="">Seleccione un programa...</option>
+                                        ${opcionesProgramas}
+                                    </select>
+                                </div>
                             </div>
-                            <div class="input-group">
-                                <label>Fecha</label>
-                                <input type="date" class="asis-fecha" required>
+
+                            <h3 class="section-title">2. Adicionales de la jornada</h3>
+                            <div class="form-grid">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="almuerzo-${trab.id}" class="asis-noalmuerzo">
+                                    <label for="almuerzo-${trab.id}">No almorzó (+$5.000)</label>
+                                </div>
+                                <div class="input-group">
+                                    <label>Invitados (+$1.000 c/u)</label>
+                                    <input type="number" class="asis-invitados" min="0" value="0" style="max-width: 150px;">
+                                </div>
                             </div>
-                            <div class="input-group">
-                                <label>Programa Asistido</label>
-                                <select class="asis-programa" required>
-                                    <option value="">Seleccione un programa...</option>
-                                    ${opcionesProgramas}
-                                </select>
+
+                            <div class="checkbox-group" style="margin-top: 1rem;">
+                                <input type="checkbox" id="extra-${trab.id}" class="asis-toggle-extra" onchange="toggleExtraFields(this)">
+                                <label for="extra-${trab.id}" style="color: var(--primary); font-weight: bold;">¿Desea agregar un pago extra o caso especial a esta jornada?</label>
                             </div>
-                            <button type="submit">Agregar Asistencia</button>
+                            
+                            <div class="extra-fields">
+                                <div class="input-group">
+                                    <label>Monto Extra ($)</label>
+                                    <input type="number" class="asis-monto-extra" min="0" placeholder="Ej. 15000">
+                                </div>
+                                <div class="input-group">
+                                    <label>Motivo o Detalle del Extra</label>
+                                    <input type="text" class="asis-detalle-extra" placeholder="Ej. Transporte, bono por hora extra...">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-full">Cerrar y Agregar Jornada</button>
                         </form>
 
                         <h3>Desglose de Asistencias</h3>
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Fecha</th>
-                                    <th>Día</th>
+                                    <th>Fecha y Día</th>
                                     <th>Programa</th>
-                                    <th>Monto</th>
-                                    <th>Acción</th>
+                                    <th>Monto Base</th>
+                                    <th>Extras</th>
+                                    <th>Total Día</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -388,18 +590,12 @@
             });
         }
 
-        function actualizarSelectsProgramas() {
-            // Re-renderizar trabajadores para que los selects se actualicen si se añadió un programa nuevo
-            renderizarTrabajadores();
-        }
-
-        // --- UTILIDADES ---
+        function actualizarSelectsProgramas() { renderizarTrabajadores(); }
         function guardarDatos() {
             localStorage.setItem('nat_programas', JSON.stringify(programas));
             localStorage.setItem('nat_trabajadores', JSON.stringify(trabajadores));
         }
 
-        // Inicialización al cargar la página
         renderizarProgramas();
         renderizarTrabajadores();
     </script>
