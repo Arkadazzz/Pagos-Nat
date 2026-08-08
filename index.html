@@ -6,8 +6,7 @@
     <title>Nat Producciones - Pagos</title>
     <style>
         :root {
-            /* TEMA CLARO (Blanco y Morado) */
-            --primary: #9b66c4; /* Morado Nat */
+            --primary: #9b66c4;
             --primary-hover: #8354a8;
             --bg: #f3f4f6;
             --card-bg: #ffffff;
@@ -20,7 +19,6 @@
         }
 
         [data-theme="dark"] {
-            /* TEMA OSCURO (Negro y Morado) */
             --primary: #a778cc; 
             --primary-hover: #c09ce0;
             --bg: #121212;
@@ -50,7 +48,6 @@
             align-items: center;
             border-bottom: 1px solid var(--border);
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            transition: background-color 0.3s;
         }
 
         .logo {
@@ -67,15 +64,6 @@
             border-radius: 20px;
             cursor: pointer;
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s;
-        }
-
-        .theme-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
         }
 
         .tabs {
@@ -94,10 +82,8 @@
             color: var(--text-light);
             font-weight: 600;
             border-bottom: 3px solid transparent;
-            transition: all 0.2s;
         }
 
-        .tab-btn:hover { color: var(--primary); }
         .tab-btn.active {
             color: var(--primary);
             border-bottom: 3px solid var(--primary);
@@ -119,7 +105,6 @@
             margin-bottom: 1.5rem;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             overflow-x: auto;
-            transition: background-color 0.3s;
         }
 
         .form-grid {
@@ -130,38 +115,11 @@
             align-items: flex-end;
         }
 
-        .input-group {
-            display: flex;
-            flex-direction: column;
-        }
+        .input-group { display: flex; flex-direction: column; }
+        .checkbox-group { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; }
+        .checkbox-group input[type="checkbox"] { width: 1.2rem; height: 1.2rem; accent-color: var(--primary); }
 
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 1.2rem;
-            height: 1.2rem;
-            cursor: pointer;
-            accent-color: var(--primary);
-        }
-        
-        .checkbox-group label {
-            margin-bottom: 0;
-            cursor: pointer;
-            color: var(--text);
-        }
-
-        label {
-            font-size: 0.875rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--text-light);
-        }
-
+        label { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-light); }
         input, select {
             padding: 0.75rem;
             border: 1px solid var(--border);
@@ -169,7 +127,6 @@
             font-size: 1rem;
             background-color: var(--card-bg);
             color: var(--text);
-            transition: background-color 0.3s, color 0.3s;
         }
 
         button {
@@ -181,30 +138,17 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
             height: 45px;
         }
 
-        button:hover { background-color: var(--primary-hover); }
         button.btn-delete { background-color: #ef4444; }
-        button.btn-delete:hover { background-color: #dc2626; }
-        
-        .btn-full { width: 100%; margin-top: 1rem; background-color: var(--success); }
-        .btn-full:hover { background-color: #047857; }
+        button.btn-pay { background-color: #10b981; }
+        button.btn-pay:hover { background-color: #059669; }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-            min-width: 700px;
-        }
+        .btn-full { width: 100%; margin-top: 1rem; background-color: var(--primary); }
 
-        th, td {
-            text-align: left;
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; min-width: 700px; }
+        th, td { text-align: left; padding: 1rem; border-bottom: 1px solid var(--border); }
         th { background-color: var(--form-bg); font-weight: 600; }
         
         .text-sm { font-size: 0.85rem; color: var(--text-light); display: block; }
@@ -220,6 +164,8 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
+
+        .worker-actions { display: flex; align-items: center; gap: 1rem; }
 
         .worker-total {
             font-size: 1.25rem;
@@ -237,7 +183,6 @@
             border-radius: 6px;
             margin-bottom: 1.5rem;
             border: 1px solid var(--border);
-            transition: background-color 0.3s;
         }
         
         .section-title {
@@ -261,12 +206,25 @@
             border-radius: 6px;
         }
         .extra-fields.active { display: grid; }
+
+        .history-section {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 2px dashed var(--border);
+        }
+        .history-card {
+            background-color: var(--form-bg);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--border);
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <img src="NAT_Blanco.jpg" alt="Nat Producciones" class="logo">
+        <img src="NAT_Blanco.jpg" alt="Nat Producciones" class="logo" onerror="this.src='NAT_Blanco.png'">
         <button id="theme-toggle" class="theme-btn" onclick="toggleTheme()">🌙 Modo Oscuro</button>
     </header>
 
@@ -303,9 +261,7 @@
                             <th>Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="lista-programas">
-                        <!-- Se llena con JS -->
-                    </tbody>
+                    <tbody id="lista-programas"></tbody>
                 </table>
             </div>
         </div>
@@ -323,14 +279,11 @@
                 </form>
             </div>
 
-            <div id="lista-trabajadores">
-                <!-- Se llena con JS -->
-            </div>
+            <div id="lista-trabajadores"></div>
         </div>
     </div>
 
     <script>
-        // --- MANEJO DEL MODO CLARO/OSCURO ---
         function toggleTheme() {
             const body = document.documentElement;
             const btn = document.getElementById('theme-toggle');
@@ -345,13 +298,11 @@
             }
         }
 
-        // Cargar preferencia guardada al inicio
         if (localStorage.getItem('nat_theme') === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
             document.getElementById('theme-toggle').innerHTML = '☀️ Modo Claro';
         }
 
-        // --- LÓGICA DE LA APP ---
         let programas = JSON.parse(localStorage.getItem('nat_programas')) || [];
         let trabajadores = JSON.parse(localStorage.getItem('nat_trabajadores')) || [];
 
@@ -399,7 +350,7 @@
         function agregarTrabajador(e) {
             e.preventDefault();
             const nombre = document.getElementById('trab-nombre').value;
-            trabajadores.push({ id: generateId(), nombre, asistencias: [] });
+            trabajadores.push({ id: generateId(), nombre, asistencias: [], historialPagos: [] });
             guardarDatos();
             renderizarTrabajadores();
             e.target.reset();
@@ -478,12 +429,42 @@
             }
         }
 
+        // --- FUNCIÓN PARA LIQUIDAR Y SALDAR CUENTA DE TRABAJADOR ---
+        function realizarPagoTrabajador(trabajadorId) {
+            const trabajador = trabajadores.find(t => t.id === trabajadorId);
+            if (!trabajador || trabajador.asistencias.length === 0) {
+                return alert("No hay montos pendientes por pagar a este trabajador.");
+            }
+
+            const totalAPagar = trabajador.asistencias.reduce((sum, a) => sum + (a.totalDia || a.montoCobrado), 0);
+
+            if (confirm(`¿Confirmas que ya realizaste el pago de $${totalAPagar.toLocaleString('es-CL')} a ${trabajador.nombre}? El monto actual volverá a $0 y las jornadas se guardarán en el historial.`)) {
+                if (!trabajador.historialPagos) trabajador.historialPagos = [];
+
+                const hoy = new Date().toLocaleDateString('es-CL');
+                trabajador.historialPagos.unshift({
+                    id: generateId(),
+                    fechaPago: hoy,
+                    totalPagado: totalAPagar,
+                    jornadas: [...trabajador.asistencias]
+                });
+
+                // Reiniciar asistencias pendientes a 0
+                trabajador.asistencias = [];
+
+                guardarDatos();
+                renderizarTrabajadores();
+            }
+        }
+
         function renderizarTrabajadores() {
             const contenedor = document.getElementById('lista-trabajadores');
             contenedor.innerHTML = '';
             let opcionesProgramas = programas.map(p => `<option value="${p.id}">${p.nombre} (Base: $${p.monto})</option>`).join('');
 
             trabajadores.forEach(trab => {
+                if (!trab.historialPagos) trab.historialPagos = [];
+
                 const totalMonto = trab.asistencias.reduce((sum, asis) => {
                     return sum + (asis.totalDia !== undefined ? asis.totalDia : asis.montoCobrado);
                 }, 0);
@@ -498,24 +479,39 @@
                         <td>${asis.fecha}<span class="text-sm">${asis.diaNombre}</span></td>
                         <td>${asis.programaNombre}</td>
                         <td>$${base.toLocaleString('es-CL')}</td>
-                        <td>
-                            $${(asis.montoExtras || 0).toLocaleString('es-CL')}
-                            <span class="text-sm">${strExtras}</span>
-                        </td>
+                        <td>$${(asis.montoExtras || 0).toLocaleString('es-CL')}<span class="text-sm">${strExtras}</span></td>
                         <td class="monto-total-td">$${totalD.toLocaleString('es-CL')}</td>
                         <td><button class="btn-delete" style="padding: 0.25rem 0.5rem; height: auto;" onclick="eliminarAsistencia('${trab.id}', '${asis.id}')">X</button></td>
                     </tr>
                 `}).join('');
 
                 if (trab.asistencias.length === 0) {
-                    filasAsistencias = `<tr><td colspan="6" style="text-align:center; color: var(--text-light);">No hay asistencias registradas aún.</td></tr>`;
+                    filasAsistencias = `<tr><td colspan="6" style="text-align:center; color: var(--text-light);">No hay asistencias pendientes por pagar.</td></tr>`;
+                }
+
+                // Renderizar Historial de Pagos
+                let HTMLHistorial = trab.historialPagos.map(pago => `
+                    <div class="history-card">
+                        <div style="display:flex; justify-size:space-between; font-weight:bold; color:var(--primary); border-bottom: 1px solid var(--border); padding-bottom:0.25rem; margin-bottom:0.5rem;">
+                            <span>Fecha de Pago: ${pago.fechaPago}</span>
+                            <span style="color:var(--success);">Monto Saldado: $${pago.totalPagado.toLocaleString('es-CL')}</span>
+                        </div>
+                        <span class="text-sm">Jornadas liquidadas: ${pago.jornadas.map(j => `${j.programaNombre} (${j.fecha})`).join(', ')}</span>
+                    </div>
+                `).join('');
+
+                if (trab.historialPagos.length === 0) {
+                    HTMLHistorial = `<p class="text-sm" style="color: var(--text-light);">Sin pagos registrados previamente.</p>`;
                 }
 
                 contenedor.innerHTML += `
                     <div class="card">
                         <div class="worker-header">
                             <h2>${trab.nombre}</h2>
-                            <div class="worker-total">Total a Pagar: $${totalMonto.toLocaleString('es-CL')}</div>
+                            <div class="worker-actions">
+                                <div class="worker-total">Pendiente: $${totalMonto.toLocaleString('es-CL')}</div>
+                                <button class="btn-pay" onclick="realizarPagoTrabajador('${trab.id}')">✓ Marcar como Pagado</button>
+                            </div>
                         </div>
                         
                         <form class="attendance-form" onsubmit="agregarAsistencia(event, '${trab.id}')">
@@ -552,7 +548,7 @@
 
                             <div class="checkbox-group" style="margin-top: 1rem;">
                                 <input type="checkbox" id="extra-${trab.id}" class="asis-toggle-extra" onchange="toggleExtraFields(this)">
-                                <label for="extra-${trab.id}" style="color: var(--primary); font-weight: bold;">¿Desea agregar un pago extra o caso especial a esta jornada?</label>
+                                <label for="extra-${trab.id}" style="color: var(--primary); font-weight: bold;">¿Desea agregar un pago extra o caso especial?</label>
                             </div>
                             
                             <div class="extra-fields">
@@ -569,7 +565,7 @@
                             <button type="submit" class="btn-full">Cerrar y Agregar Jornada</button>
                         </form>
 
-                        <h3>Desglose de Asistencias</h3>
+                        <h3>Jornadas Pendientes de Pago</h3>
                         <table>
                             <thead>
                                 <tr>
@@ -581,10 +577,13 @@
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                ${filasAsistencias}
-                            </tbody>
+                            <tbody>${filasAsistencias}</tbody>
                         </table>
+
+                        <div class="history-section">
+                            <h3>Historial de Pagos Realizados</h3>
+                            ${HTMLHistorial}
+                        </div>
                     </div>
                 `;
             });
