@@ -43,12 +43,12 @@
         .logo { height: 60px; width: auto; object-fit: contain; }
         
         .header-actions { display: flex; gap: 1rem; align-items: center; }
-        .theme-btn, .logout-btn { background: none; border: 1px solid var(--border); color: var(--text); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; font-weight: 600; }
+        .theme-btn, .logout-btn { background: none; border: 1px solid var(--border); color: var(--text); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
         .logout-btn { color: #ef4444; border-color: #ef4444; }
         .logout-btn:hover { background-color: #ef4444; color: white; }
 
-        .tabs { display: flex; justify-content: center; background-color: var(--card-bg); border-bottom: 1px solid var(--border); }
-        .tab-btn { padding: 1rem 2rem; border: none; background: none; font-size: 1rem; cursor: pointer; color: var(--text-light); font-weight: 600; border-bottom: 3px solid transparent; }
+        .tabs { display: flex; justify-content: center; background-color: var(--card-bg); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+        .tab-btn { padding: 1rem 1.5rem; border: none; background: none; font-size: 1rem; cursor: pointer; color: var(--text-light); font-weight: 600; border-bottom: 3px solid transparent; flex-grow: 1; text-align: center; }
         .tab-btn.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
 
         .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
@@ -56,6 +56,7 @@
         .tab-content.active { display: block; }
 
         .card { background-color: var(--card-bg); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; }
+        
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; align-items: flex-end; }
         .input-group { display: flex; flex-direction: column; }
         
@@ -64,19 +65,21 @@
 
         label { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-light); }
         input, select { padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; background-color: var(--card-bg); color: var(--text); }
-        button { padding: 0.75rem 1.5rem; background-color: var(--primary); color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; height: 45px; }
+        button { padding: 0.75rem 1.5rem; background-color: var(--primary); color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; min-height: 45px; }
         button.btn-delete { background-color: #ef4444; }
         button.btn-pay { background-color: #10b981; }
         .btn-full { width: 100%; margin-top: 1rem; background-color: var(--primary); }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; min-width: 700px; }
+        /* Contenedor de tablas para scroll en móviles */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 1rem; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
         th, td { text-align: left; padding: 1rem; border-bottom: 1px solid var(--border); }
         th { background-color: var(--form-bg); font-weight: 600; }
-        .text-sm { font-size: 0.85rem; color: var(--text-light); display: block; }
+        .text-sm { font-size: 0.85rem; color: var(--text-light); display: block; line-height: 1.4; }
         .monto-total-td { font-weight: bold; color: var(--success); }
 
         .worker-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--bg); padding-bottom: 1rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
-        .worker-actions { display: flex; align-items: center; gap: 1rem; }
+        .worker-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
         .worker-total { font-size: 1.25rem; font-weight: bold; color: var(--success); background: var(--form-bg); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border); }
         .attendance-form { background-color: var(--form-bg); padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; border: 1px solid var(--border); }
         .section-title { font-size: 1rem; color: var(--primary); margin-top: 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
@@ -84,15 +87,25 @@
         .extra-fields { display: none; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border); background-color: var(--bg); padding: 1rem; border-radius: 6px; }
         .extra-fields.active { display: grid; }
 
-        .history-section { margin-top: 2rem; padding-top: 1rem; border-top: 2px dashed var(--border); }
-        .history-card { background-color: var(--form-bg); padding: 1rem; border-radius: 6px; margin-bottom: 0.5rem; border: 1px solid var(--border); }
+        .history-card { background-color: var(--form-bg); padding: 1.25rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--border); }
 
         /* Estilos Pantalla Login */
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 1rem; box-sizing: border-box; }
         .login-box { background: var(--card-bg); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
         .login-box img { max-height: 80px; margin-bottom: 1.5rem; }
         #app-content { display: none; }
         .error-msg { color: #ef4444; font-size: 0.875rem; margin-top: 1rem; min-height: 20px; }
+
+        /* Adaptabilidad a Celulares (Responsive) */
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 1rem; padding: 1rem; }
+            .header-actions { width: 100%; justify-content: space-between; }
+            .worker-actions { width: 100%; flex-direction: column; align-items: stretch; }
+            .worker-total { text-align: center; }
+            .container { margin: 1rem auto; padding: 0 0.5rem; }
+            .card { padding: 1rem; }
+            .attendance-form { padding: 1rem; }
+        }
     </style>
 </head>
 <body>
@@ -116,17 +129,21 @@
         <header>
             <img src="NAT_Blanco.jpg" alt="Nat Producciones" class="logo" onerror="this.src='NAT_Blanco.png'">
             <div class="header-actions">
-                <button id="theme-toggle" class="theme-btn" onclick="toggleTheme()">🌙 Modo Oscuro</button>
+                <button id="theme-toggle" class="theme-btn" onclick="toggleTheme()">🌙 Oscuro</button>
                 <button class="logout-btn" onclick="cerrarSesion()">Cerrar Sesión</button>
             </div>
         </header>
 
+        <!-- Pestañas de Navegación -->
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('programas')">Programas y Tarifas</button>
-            <button class="tab-btn" onclick="switchTab('trabajadores')">Trabajadores y Asistencias</button>
+            <button class="tab-btn active" onclick="switchTab('programas', this)">Programas y Tarifas</button>
+            <button class="tab-btn" onclick="switchTab('trabajadores', this)">Pagos Pendientes</button>
+            <button class="tab-btn" onclick="switchTab('pagos-realizados', this)">Pagos Realizados</button>
         </div>
 
         <div class="container">
+            
+            <!-- PESTAÑA 1: PROGRAMAS -->
             <div id="programas" class="tab-content active">
                 <div class="card">
                     <h2>Agregar Nuevo Programa/Serie</h2>
@@ -144,15 +161,18 @@
                 </div>
                 <div class="card">
                     <h2>Programas Registrados</h2>
-                    <table>
-                        <thead>
-                            <tr><th>Nombre</th><th>Monto a Pagar</th><th>Acción</th></tr>
-                        </thead>
-                        <tbody id="lista-programas"></tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr><th>Nombre</th><th>Monto a Pagar</th><th>Acción</th></tr>
+                            </thead>
+                            <tbody id="lista-programas"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
+            <!-- PESTAÑA 2: TRABAJADORES Y PENDIENTES -->
             <div id="trabajadores" class="tab-content">
                 <div class="card">
                     <h2>Registrar Nuevo Trabajador</h2>
@@ -166,6 +186,20 @@
                 </div>
                 <div id="lista-trabajadores"></div>
             </div>
+
+            <!-- PESTAÑA 3: PAGOS REALIZADOS (CONTABILIDAD) -->
+            <div id="pagos-realizados" class="tab-content">
+                <div class="card">
+                    <h2>Contabilidad Global de Pagos</h2>
+                    <p style="color: var(--text-light); margin-bottom: 1.5rem;">Aquí se registran todos los pagos que ya han sido transferidos a los trabajadores.</p>
+                    <div id="resumen-total-pagos" class="worker-total" style="margin-bottom: 2rem; display: inline-block;">Total Histórico: $0</div>
+                    
+                    <div id="lista-global-pagos">
+                        <!-- Aquí se inyectará el historial mediante JS -->
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -225,6 +259,7 @@
                 trabajadores = data.trabajadores || [];
                 renderizarProgramas();
                 renderizarTrabajadores();
+                renderizarPagosGlobales();
             });
         }
 
@@ -242,20 +277,20 @@
             if (body.getAttribute('data-theme') === 'dark') {
                 body.removeAttribute('data-theme');
                 localStorage.setItem('nat_theme', 'light');
-                btn.innerHTML = '🌙 Modo Oscuro';
+                btn.innerHTML = '🌙 Oscuro';
             } else {
                 body.setAttribute('data-theme', 'dark');
                 localStorage.setItem('nat_theme', 'dark');
-                btn.innerHTML = '☀️ Modo Claro';
+                btn.innerHTML = '☀️ Claro';
             }
         }
-        if (localStorage.getItem('nat_theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); document.getElementById('theme-toggle').innerHTML = '☀️ Modo Claro'; }
+        if (localStorage.getItem('nat_theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); document.getElementById('theme-toggle').innerHTML = '☀️ Claro'; }
 
-        function switchTab(tabId) {
+        function switchTab(tabId, btnElement) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
+            if(btnElement) btnElement.classList.add('active');
         }
 
         const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
@@ -279,11 +314,11 @@
             const tbody = document.getElementById('lista-programas');
             tbody.innerHTML = '';
             programas.forEach(prog => {
-                tbody.innerHTML += `<tr><td>${prog.nombre}</td><td>$${prog.monto.toLocaleString('es-CL')}</td><td><button class="btn-delete" onclick="eliminarPrograma('${prog.id}')">Eliminar</button></td></tr>`;
+                tbody.innerHTML += `<tr><td>${prog.nombre}</td><td>$${prog.monto.toLocaleString('es-CL')}</td><td><button class="btn-delete" style="height:auto; padding:0.5rem 1rem;" onclick="eliminarPrograma('${prog.id}')">Eliminar</button></td></tr>`;
             });
         }
 
-        // --- LÓGICA DE TRABAJADORES ---
+        // --- LÓGICA DE TRABAJADORES Y ASISTENCIAS ---
         function agregarTrabajador(e) {
             e.preventDefault();
             const nombre = document.getElementById('trab-nombre').value;
@@ -339,19 +374,73 @@
             }
         }
 
+        // --- SISTEMA DE PAGO Y GENERACIÓN DE TXT ---
         function realizarPagoTrabajador(trabajadorId) {
             const trabajador = trabajadores.find(t => t.id === trabajadorId);
             if (!trabajador || !trabajador.asistencias || trabajador.asistencias.length === 0) return alert("No hay montos pendientes por pagar.");
 
             const totalAPagar = trabajador.asistencias.reduce((sum, a) => sum + (a.totalDia || a.montoCobrado), 0);
 
-            if (confirm(`¿Confirmas que ya realizaste el pago de $${totalAPagar.toLocaleString('es-CL')} a ${trabajador.nombre}?`)) {
+            if (confirm(`¿Confirmas que ya realizaste el depósito de $${totalAPagar.toLocaleString('es-CL')} a ${trabajador.nombre}?\n\nAl confirmar, se guardará en contabilidad y se descargará el detalle TXT.`)) {
                 if (!trabajador.historialPagos) trabajador.historialPagos = [];
-                const hoy = new Date().toLocaleDateString('es-CL');
-                trabajador.historialPagos.unshift({ id: generateId(), fechaPago: hoy, totalPagado: totalAPagar, jornadas: [...trabajador.asistencias] });
+                
+                // Formato de fecha actual
+                const hoy = new Date();
+                const fechaFormat = `${hoy.getDate().toString().padStart(2, '0')}/${(hoy.getMonth() + 1).toString().padStart(2, '0')}/${hoy.getFullYear()}`;
+                
+                const nuevoPago = { 
+                    id: generateId(), 
+                    fechaPago: fechaFormat, 
+                    totalPagado: totalAPagar, 
+                    jornadas: [...trabajador.asistencias] 
+                };
+
+                trabajador.historialPagos.unshift(nuevoPago);
                 trabajador.asistencias = [];
                 guardarDatos();
+
+                // Generar auto-descarga del TXT
+                const pagoStr = encodeURIComponent(JSON.stringify(nuevoPago));
+                descargarComprobante(trabajador.nombre, pagoStr);
             }
+        }
+
+        function descargarComprobante(trabajadorNombre, pagoString) {
+            const pago = JSON.parse(decodeURIComponent(pagoString));
+            
+            let contenido = `====================================\n`;
+            contenido += `  COMPROBANTE DE PAGO - NAT PRODUCCIONES\n`;
+            contenido += `====================================\n\n`;
+            contenido += `Trabajador: ${trabajadorNombre}\n`;
+            contenido += `Fecha de Pago: ${pago.fechaPago}\n`;
+            contenido += `Total Pagado: $${pago.totalPagado.toLocaleString('es-CL')}\n\n`;
+            contenido += `--- DETALLE DE JORNADAS ---\n`;
+            
+            pago.jornadas.forEach(j => {
+                const subtotal = j.totalDia !== undefined ? j.totalDia : j.montoCobrado;
+                const base = j.montoBase !== undefined ? j.montoBase : subtotal;
+                
+                contenido += `\n> ${j.fecha} (${j.diaNombre})\n`;
+                contenido += `  Programa: ${j.programaNombre}\n`;
+                contenido += `  Monto Base: $${base.toLocaleString('es-CL')}\n`;
+                
+                if (j.montoExtras > 0) {
+                    contenido += `  Adicionales: $${j.montoExtras.toLocaleString('es-CL')} (${j.detalleExtras})\n`;
+                }
+                contenido += `  Subtotal Jornada: $${subtotal.toLocaleString('es-CL')}\n`;
+            });
+            
+            contenido += `\n====================================\n`;
+            contenido += `Documento generado automáticamente.`;
+
+            // Crear archivo TXT y forzar descarga
+            const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Pago_${trabajadorNombre.replace(/\s+/g, '_')}_${pago.fechaPago.replace(/\//g, '-')}.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function renderizarTrabajadores() {
@@ -369,29 +458,25 @@
                     const base = asis.montoBase !== undefined ? asis.montoBase : asis.montoCobrado;
                     const totalD = asis.totalDia !== undefined ? asis.totalDia : asis.montoCobrado;
                     const strExtras = asis.detalleExtras ? asis.detalleExtras : (asis.montoExtras ? 'Extras aplicados' : 'Ninguno');
-                    return `<tr><td>${asis.fecha}<span class="text-sm">${asis.diaNombre}</span></td><td>${asis.programaNombre}</td><td>$${base.toLocaleString('es-CL')}</td><td>$${(asis.montoExtras || 0).toLocaleString('es-CL')}<span class="text-sm">${strExtras}</span></td><td class="monto-total-td">$${totalD.toLocaleString('es-CL')}</td><td><button class="btn-delete" style="padding: 0.25rem 0.5rem; height: auto;" onclick="eliminarAsistencia('${trab.id}', '${asis.id}')">X</button></td></tr>`;
+                    return `<tr>
+                                <td>${asis.fecha}<span class="text-sm">${asis.diaNombre}</span></td>
+                                <td>${asis.programaNombre}</td>
+                                <td>$${base.toLocaleString('es-CL')}</td>
+                                <td>$${(asis.montoExtras || 0).toLocaleString('es-CL')}<span class="text-sm">${strExtras}</span></td>
+                                <td class="monto-total-td">$${totalD.toLocaleString('es-CL')}</td>
+                                <td><button class="btn-delete" style="padding: 0.25rem 0.5rem; height: auto;" onclick="eliminarAsistencia('${trab.id}', '${asis.id}')">X</button></td>
+                            </tr>`;
                 }).join('');
 
                 if (trab.asistencias.length === 0) filasAsistencias = `<tr><td colspan="6" style="text-align:center; color: var(--text-light);">No hay asistencias pendientes por pagar.</td></tr>`;
 
-                let HTMLHistorial = trab.historialPagos.map(pago => `
-                    <div class="history-card">
-                        <div style="display:flex; justify-content:space-between; font-weight:bold; color:var(--primary); border-bottom: 1px solid var(--border); padding-bottom:0.25rem; margin-bottom:0.5rem;">
-                            <span>Fecha: ${pago.fechaPago}</span><span style="color:var(--success);">Saldado: $${pago.totalPagado.toLocaleString('es-CL')}</span>
-                        </div>
-                        <span class="text-sm">Jornadas: ${pago.jornadas.map(j => `${j.programaNombre} (${j.fecha})`).join(', ')}</span>
-                    </div>
-                `).join('');
-
-                if (trab.historialPagos.length === 0) HTMLHistorial = `<p class="text-sm" style="color: var(--text-light);">Sin pagos registrados previamente.</p>`;
-
                 contenedor.innerHTML += `
                     <div class="card">
                         <div class="worker-header">
-                            <h2>${trab.nombre}</h2>
+                            <h2 style="margin:0;">${trab.nombre}</h2>
                             <div class="worker-actions">
                                 <div class="worker-total">Pendiente: $${totalMonto.toLocaleString('es-CL')}</div>
-                                <button class="btn-pay" onclick="realizarPagoTrabajador('${trab.id}')">✓ Marcar como Pagado</button>
+                                <button class="btn-pay" onclick="realizarPagoTrabajador('${trab.id}')">✓ Confirmar Pago y Generar TXT</button>
                             </div>
                         </div>
                         
@@ -420,15 +505,74 @@
                             </div>
                             <button type="submit" class="btn-full">Cerrar y Agregar Jornada</button>
                         </form>
-                        <h3>Jornadas Pendientes</h3>
-                        <table>
-                            <thead><tr><th>Fecha y Día</th><th>Programa</th><th>Monto Base</th><th>Extras</th><th>Total Día</th><th></th></tr></thead>
-                            <tbody>${filasAsistencias}</tbody>
-                        </table>
-                        <div class="history-section"><h3>Historial de Pagos</h3>${HTMLHistorial}</div>
+                        
+                        <h3>Jornadas Pendientes por Pagar</h3>
+                        <div class="table-responsive">
+                            <table>
+                                <thead><tr><th>Fecha y Día</th><th>Programa</th><th>Monto Base</th><th>Extras</th><th>Total Día</th><th></th></tr></thead>
+                                <tbody>${filasAsistencias}</tbody>
+                            </table>
+                        </div>
                     </div>
                 `;
             });
+        }
+
+        // --- PESTAÑA DE CONTABILIDAD GLOBAL ---
+        function renderizarPagosGlobales() {
+            const contenedor = document.getElementById('lista-global-pagos');
+            let todosLosPagos = [];
+            let granTotal = 0;
+
+            // Recolectar todos los pagos de todos los trabajadores
+            trabajadores.forEach(trab => {
+                if(trab.historialPagos) {
+                    trab.historialPagos.forEach(pago => {
+                        todosLosPagos.push({
+                            ...pago,
+                            trabajadorNombre: trab.nombre,
+                        });
+                        granTotal += pago.totalPagado;
+                    });
+                }
+            });
+
+            // Actualizar el gran total
+            document.getElementById('resumen-total-pagos').innerText = `Total Histórico Invertido: $${granTotal.toLocaleString('es-CL')}`;
+
+            if (todosLosPagos.length === 0) {
+                contenedor.innerHTML = '<p style="color: var(--text-light); text-align: center;">No hay pagos registrados en el historial de la empresa.</p>';
+                return;
+            }
+
+            // Generar las tarjetas de historial global
+            contenedor.innerHTML = todosLosPagos.map(pago => {
+                const pagoStr = encodeURIComponent(JSON.stringify(pago));
+                
+                let detalleJornadasHTML = pago.jornadas.map(j => {
+                    const subtotal = j.totalDia !== undefined ? j.totalDia : j.montoCobrado;
+                    return `• ${j.fecha} - ${j.programaNombre} <span style="font-weight:600;">($${subtotal.toLocaleString('es-CL')})</span>`;
+                }).join('<br>');
+
+                return `
+                <div class="history-card">
+                    <div style="display:flex; justify-content:space-between; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <strong style="font-size: 1.1rem; color: var(--primary);">${pago.trabajadorNombre}</strong> 
+                            <span class="text-sm">Fecha de depósito: ${pago.fechaPago}</span>
+                        </div>
+                        <div style="display:flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                            <span style="color:var(--success); font-weight: bold; font-size: 1.2rem;">$${pago.totalPagado.toLocaleString('es-CL')}</span>
+                            <button onclick="descargarComprobante('${pago.trabajadorNombre}', '${pagoStr}')" style="padding: 0.4rem 0.8rem; min-height: auto; font-size: 0.9rem; white-space: nowrap;">📄 Bajar Detalle TXT</button>
+                        </div>
+                    </div>
+                    <div class="text-sm" style="color: var(--text);">
+                        <strong style="margin-bottom: 0.25rem; display: block;">Jornadas cubiertas en este pago:</strong>
+                        ${detalleJornadasHTML}
+                    </div>
+                </div>
+                `;
+            }).join('');
         }
     </script>
 </body>
