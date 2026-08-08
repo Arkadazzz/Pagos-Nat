@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nat Producciones - Pagos</title>
+    
+    <!-- Librerías de Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+
     <style>
         :root {
             --primary: #9b66c4;
@@ -31,259 +37,205 @@
             --header-bg: #000000;
         }
         
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-            transition: background-color 0.3s, color 0.3s;
-        }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; transition: background-color 0.3s, color 0.3s; }
 
-        header {
-            background-color: var(--header-bg);
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
+        header { background-color: var(--header-bg); padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .logo { height: 60px; width: auto; object-fit: contain; }
+        
+        .header-actions { display: flex; gap: 1rem; align-items: center; }
+        .theme-btn, .logout-btn { background: none; border: 1px solid var(--border); color: var(--text); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; font-weight: 600; }
+        .logout-btn { color: #ef4444; border-color: #ef4444; }
+        .logout-btn:hover { background-color: #ef4444; color: white; }
 
-        .logo {
-            height: 60px;
-            width: auto;
-            object-fit: contain;
-        }
+        .tabs { display: flex; justify-content: center; background-color: var(--card-bg); border-bottom: 1px solid var(--border); }
+        .tab-btn { padding: 1rem 2rem; border: none; background: none; font-size: 1rem; cursor: pointer; color: var(--text-light); font-weight: 600; border-bottom: 3px solid transparent; }
+        .tab-btn.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
 
-        .theme-btn {
-            background: none;
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .tabs {
-            display: flex;
-            justify-content: center;
-            background-color: var(--card-bg);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .tab-btn {
-            padding: 1rem 2rem;
-            border: none;
-            background: none;
-            font-size: 1rem;
-            cursor: pointer;
-            color: var(--text-light);
-            font-weight: 600;
-            border-bottom: 3px solid transparent;
-        }
-
-        .tab-btn.active {
-            color: var(--primary);
-            border-bottom: 3px solid var(--primary);
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-
+        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            overflow-x: auto;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
-            align-items: flex-end;
-        }
-
+        .card { background-color: var(--card-bg); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; align-items: flex-end; }
         .input-group { display: flex; flex-direction: column; }
+        
         .checkbox-group { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; }
         .checkbox-group input[type="checkbox"] { width: 1.2rem; height: 1.2rem; accent-color: var(--primary); }
 
         label { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-light); }
-        input, select {
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 1rem;
-            background-color: var(--card-bg);
-            color: var(--text);
-        }
-
-        button {
-            padding: 0.75rem 1.5rem;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            height: 45px;
-        }
-
+        input, select { padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; background-color: var(--card-bg); color: var(--text); }
+        button { padding: 0.75rem 1.5rem; background-color: var(--primary); color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; height: 45px; }
         button.btn-delete { background-color: #ef4444; }
         button.btn-pay { background-color: #10b981; }
-        button.btn-pay:hover { background-color: #059669; }
-
         .btn-full { width: 100%; margin-top: 1rem; background-color: var(--primary); }
 
         table { width: 100%; border-collapse: collapse; margin-top: 1rem; min-width: 700px; }
         th, td { text-align: left; padding: 1rem; border-bottom: 1px solid var(--border); }
         th { background-color: var(--form-bg); font-weight: 600; }
-        
         .text-sm { font-size: 0.85rem; color: var(--text-light); display: block; }
         .monto-total-td { font-weight: bold; color: var(--success); }
 
-        .worker-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--bg);
-            padding-bottom: 1rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
+        .worker-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--bg); padding-bottom: 1rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
         .worker-actions { display: flex; align-items: center; gap: 1rem; }
-
-        .worker-total {
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: var(--success);
-            background: var(--form-bg);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-
-        .attendance-form {
-            background-color: var(--form-bg);
-            padding: 1.5rem;
-            border-radius: 6px;
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--border);
-        }
+        .worker-total { font-size: 1.25rem; font-weight: bold; color: var(--success); background: var(--form-bg); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border); }
+        .attendance-form { background-color: var(--form-bg); padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; border: 1px solid var(--border); }
+        .section-title { font-size: 1rem; color: var(--primary); margin-top: 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
         
-        .section-title {
-            font-size: 1rem;
-            color: var(--primary);
-            margin-top: 0;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 0.5rem;
-        }
-
-        .extra-fields {
-            display: none;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px dashed var(--border);
-            background-color: var(--bg);
-            padding: 1rem;
-            border-radius: 6px;
-        }
+        .extra-fields { display: none; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border); background-color: var(--bg); padding: 1rem; border-radius: 6px; }
         .extra-fields.active { display: grid; }
 
-        .history-section {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 2px dashed var(--border);
-        }
-        .history-card {
-            background-color: var(--form-bg);
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
-            border: 1px solid var(--border);
-        }
+        .history-section { margin-top: 2rem; padding-top: 1rem; border-top: 2px dashed var(--border); }
+        .history-card { background-color: var(--form-bg); padding: 1rem; border-radius: 6px; margin-bottom: 0.5rem; border: 1px solid var(--border); }
+
+        /* Estilos Pantalla Login */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-box { background: var(--card-bg); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        .login-box img { max-height: 80px; margin-bottom: 1.5rem; }
+        #app-content { display: none; }
+        .error-msg { color: #ef4444; font-size: 0.875rem; margin-top: 1rem; min-height: 20px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <img src="NAT_Blanco.jpg" alt="Nat Producciones" class="logo" onerror="this.src='NAT_Blanco.png'">
-        <button id="theme-toggle" class="theme-btn" onclick="toggleTheme()">🌙 Modo Oscuro</button>
-    </header>
-
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('programas')">Programas y Tarifas</button>
-        <button class="tab-btn" onclick="switchTab('trabajadores')">Trabajadores y Asistencias</button>
+    <!-- PANTALLA DE LOGIN -->
+    <div id="login-screen">
+        <div class="login-box">
+            <img src="NAT_Blanco.jpg" alt="Nat Producciones" onerror="this.src='NAT_Blanco.png'">
+            <h2 style="margin-top:0; color:var(--text);">Acceso Privado</h2>
+            <form id="login-form" style="display: flex; flex-direction: column; gap: 1rem;">
+                <input type="email" id="email" placeholder="Correo electrónico" required>
+                <input type="password" id="password" placeholder="Contraseña" required>
+                <button type="submit">Ingresar al Sistema</button>
+            </form>
+            <div id="login-error" class="error-msg"></div>
+        </div>
     </div>
 
-    <div class="container">
-        <!-- PESTAÑA PROGRAMAS -->
-        <div id="programas" class="tab-content active">
-            <div class="card">
-                <h2>Agregar Nuevo Programa/Serie</h2>
-                <form id="form-programa" class="form-grid" onsubmit="agregarPrograma(event)">
-                    <div class="input-group">
-                        <label for="prog-nombre">Nombre del Programa</label>
-                        <input type="text" id="prog-nombre" placeholder="Ej. Película X" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="prog-monto">Monto Base por Asistencia ($)</label>
-                        <input type="number" id="prog-monto" placeholder="Ej. 25000" required min="0">
-                    </div>
-                    <button type="submit">Guardar Programa</button>
-                </form>
+    <!-- CONTENIDO DE LA APP -->
+    <div id="app-content">
+        <header>
+            <img src="NAT_Blanco.jpg" alt="Nat Producciones" class="logo" onerror="this.src='NAT_Blanco.png'">
+            <div class="header-actions">
+                <button id="theme-toggle" class="theme-btn" onclick="toggleTheme()">🌙 Modo Oscuro</button>
+                <button class="logout-btn" onclick="cerrarSesion()">Cerrar Sesión</button>
             </div>
+        </header>
 
-            <div class="card">
-                <h2>Programas Registrados</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Monto a Pagar</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="lista-programas"></tbody>
-                </table>
-            </div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('programas')">Programas y Tarifas</button>
+            <button class="tab-btn" onclick="switchTab('trabajadores')">Trabajadores y Asistencias</button>
         </div>
 
-        <!-- PESTAÑA TRABAJADORES -->
-        <div id="trabajadores" class="tab-content">
-            <div class="card">
-                <h2>Registrar Nuevo Trabajador</h2>
-                <form id="form-trabajador" class="form-grid" onsubmit="agregarTrabajador(event)">
-                    <div class="input-group">
-                        <label for="trab-nombre">Nombre del Trabajador</label>
-                        <input type="text" id="trab-nombre" placeholder="Ej. Juan Pérez" required>
-                    </div>
-                    <button type="submit">Añadir Trabajador</button>
-                </form>
+        <div class="container">
+            <div id="programas" class="tab-content active">
+                <div class="card">
+                    <h2>Agregar Nuevo Programa/Serie</h2>
+                    <form id="form-programa" class="form-grid" onsubmit="agregarPrograma(event)">
+                        <div class="input-group">
+                            <label>Nombre del Programa</label>
+                            <input type="text" id="prog-nombre" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Monto Base por Asistencia ($)</label>
+                            <input type="number" id="prog-monto" required min="0">
+                        </div>
+                        <button type="submit">Guardar Programa</button>
+                    </form>
+                </div>
+                <div class="card">
+                    <h2>Programas Registrados</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Nombre</th><th>Monto a Pagar</th><th>Acción</th></tr>
+                        </thead>
+                        <tbody id="lista-programas"></tbody>
+                    </table>
+                </div>
             </div>
 
-            <div id="lista-trabajadores"></div>
+            <div id="trabajadores" class="tab-content">
+                <div class="card">
+                    <h2>Registrar Nuevo Trabajador</h2>
+                    <form id="form-trabajador" class="form-grid" onsubmit="agregarTrabajador(event)">
+                        <div class="input-group">
+                            <label>Nombre del Trabajador</label>
+                            <input type="text" id="trab-nombre" required>
+                        </div>
+                        <button type="submit">Añadir Trabajador</button>
+                    </form>
+                </div>
+                <div id="lista-trabajadores"></div>
+            </div>
         </div>
     </div>
 
     <script>
+        // --- CONFIGURACIÓN DE FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyB7wjxXdNl4LF6l5QB8SgbvsrJRY0kYk3Q",
+            authDomain: "nat-pagos.firebaseapp.com",
+            databaseURL: "https://nat-pagos-default-rtdb.firebaseio.com", 
+            projectId: "nat-pagos",
+            storageBucket: "nat-pagos.firebasestorage.app",
+            messagingSenderId: "258711868749",
+            appId: "1:258711868749:web:4a583569bfad73020a1304"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        let programas = [];
+        let trabajadores = [];
+
+        // --- SISTEMA DE LOGIN ---
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = "Cargando...";
+            
+            auth.signInWithEmailAndPassword(email, pass)
+                .catch(error => {
+                    document.getElementById('login-error').innerText = "Credenciales incorrectas o usuario no existe.";
+                    btn.innerHTML = "Ingresar al Sistema";
+                });
+        });
+
+        function cerrarSesion() { auth.signOut(); }
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+                iniciarBaseDeDatos();
+            } else {
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('app-content').style.display = 'none';
+                document.getElementById('login-form').reset();
+            }
+        });
+
+        // --- SINCRONIZACIÓN CON BASE DE DATOS ---
+        function iniciarBaseDeDatos() {
+            db.ref('sistema-pagos').on('value', (snapshot) => {
+                const data = snapshot.val() || { programas: [], trabajadores: [] };
+                programas = data.programas || [];
+                trabajadores = data.trabajadores || [];
+                renderizarProgramas();
+                renderizarTrabajadores();
+            });
+        }
+
+        function guardarDatos() {
+            db.ref('sistema-pagos').set({
+                programas: programas,
+                trabajadores: trabajadores
+            });
+        }
+
+        // --- INTERFAZ Y MODO OSCURO ---
         function toggleTheme() {
             const body = document.documentElement;
             const btn = document.getElementById('theme-toggle');
@@ -297,16 +249,7 @@
                 btn.innerHTML = '☀️ Modo Claro';
             }
         }
-
-        if (localStorage.getItem('nat_theme') === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            document.getElementById('theme-toggle').innerHTML = '☀️ Modo Claro';
-        }
-
-        let programas = JSON.parse(localStorage.getItem('nat_programas')) || [];
-        let trabajadores = JSON.parse(localStorage.getItem('nat_trabajadores')) || [];
-
-        const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
+        if (localStorage.getItem('nat_theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); document.getElementById('theme-toggle').innerHTML = '☀️ Modo Claro'; }
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -315,56 +258,44 @@
             event.currentTarget.classList.add('active');
         }
 
+        const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
+
+        // --- LÓGICA DE PROGRAMAS ---
         function agregarPrograma(e) {
             e.preventDefault();
             const nombre = document.getElementById('prog-nombre').value;
             const monto = parseFloat(document.getElementById('prog-monto').value);
             programas.push({ id: generateId(), nombre, monto });
             guardarDatos();
-            renderizarProgramas();
-            actualizarSelectsProgramas();
             e.target.reset();
         }
 
         function eliminarPrograma(id) {
             programas = programas.filter(p => p.id !== id);
             guardarDatos();
-            renderizarProgramas();
-            actualizarSelectsProgramas();
         }
 
         function renderizarProgramas() {
             const tbody = document.getElementById('lista-programas');
             tbody.innerHTML = '';
             programas.forEach(prog => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${prog.nombre}</td>
-                        <td>$${prog.monto.toLocaleString('es-CL')}</td>
-                        <td><button class="btn-delete" onclick="eliminarPrograma('${prog.id}')">Eliminar</button></td>
-                    </tr>
-                `;
+                tbody.innerHTML += `<tr><td>${prog.nombre}</td><td>$${prog.monto.toLocaleString('es-CL')}</td><td><button class="btn-delete" onclick="eliminarPrograma('${prog.id}')">Eliminar</button></td></tr>`;
             });
         }
 
+        // --- LÓGICA DE TRABAJADORES ---
         function agregarTrabajador(e) {
             e.preventDefault();
             const nombre = document.getElementById('trab-nombre').value;
             trabajadores.push({ id: generateId(), nombre, asistencias: [], historialPagos: [] });
             guardarDatos();
-            renderizarTrabajadores();
             e.target.reset();
         }
 
         function toggleExtraFields(checkbox) {
             const extraContainer = checkbox.closest('form').querySelector('.extra-fields');
-            if (checkbox.checked) {
-                extraContainer.classList.add('active');
-            } else {
-                extraContainer.classList.remove('active');
-                extraContainer.querySelector('.asis-monto-extra').value = '';
-                extraContainer.querySelector('.asis-detalle-extra').value = '';
-            }
+            if (checkbox.checked) { extraContainer.classList.add('active'); } 
+            else { extraContainer.classList.remove('active'); extraContainer.querySelector('.asis-monto-extra').value = ''; extraContainer.querySelector('.asis-detalle-extra').value = ''; }
         }
 
         function agregarAsistencia(e, trabajadorId) {
@@ -373,7 +304,6 @@
             const diaNombre = form.querySelector('.asis-dianombre').value;
             const fecha = form.querySelector('.asis-fecha').value;
             const programaId = form.querySelector('.asis-programa').value;
-
             const noAlmuerzo = form.querySelector('.asis-noalmuerzo').checked;
             const cantInvitados = parseInt(form.querySelector('.asis-invitados').value) || 0;
             const hayExtra = form.querySelector('.asis-toggle-extra').checked;
@@ -385,39 +315,20 @@
 
             const trabajador = trabajadores.find(t => t.id === trabajadorId);
             
-            let montoExtras = 0;
-            let desgloseExtras = [];
-
-            if (noAlmuerzo) {
-                montoExtras += 5000;
-                desgloseExtras.push("Sin almuerzo (+$5.000)");
-            }
-            if (cantInvitados > 0) {
-                const totalInvitados = cantInvitados * 1000;
-                montoExtras += totalInvitados;
-                desgloseExtras.push(`${cantInvitados} Invitado(s) (+$${totalInvitados.toLocaleString('es-CL')})`);
-            }
-            if (montoExtra > 0) {
-                montoExtras += montoExtra;
-                desgloseExtras.push(`${detalleExtra || 'Bono extra'} (+$${montoExtra.toLocaleString('es-CL')})`);
-            }
+            let montoExtras = 0; let desgloseExtras = [];
+            if (noAlmuerzo) { montoExtras += 5000; desgloseExtras.push("Sin almuerzo (+$5.000)"); }
+            if (cantInvitados > 0) { const totInv = cantInvitados * 1000; montoExtras += totInv; desgloseExtras.push(`${cantInvitados} Invitado(s) (+$${totInv.toLocaleString('es-CL')})`); }
+            if (montoExtra > 0) { montoExtras += montoExtra; desgloseExtras.push(`${detalleExtra || 'Bono extra'} (+$${montoExtra.toLocaleString('es-CL')})`); }
 
             const totalDia = programa.monto + montoExtras;
 
+            if(!trabajador.asistencias) trabajador.asistencias = [];
             trabajador.asistencias.push({
-                id: generateId(),
-                diaNombre,
-                fecha,
-                programaNombre: programa.nombre,
-                montoBase: programa.monto,
-                montoExtras: montoExtras,
-                detalleExtras: desgloseExtras.join(' | '),
-                totalDia: totalDia,
-                montoCobrado: totalDia 
+                id: generateId(), diaNombre, fecha, programaNombre: programa.nombre,
+                montoBase: programa.monto, montoExtras: montoExtras, detalleExtras: desgloseExtras.join(' | '), totalDia: totalDia, montoCobrado: totalDia 
             });
 
             guardarDatos();
-            renderizarTrabajadores();
         }
 
         function eliminarAsistencia(trabajadorId, asistenciaId) {
@@ -425,35 +336,21 @@
                 const trabajador = trabajadores.find(t => t.id === trabajadorId);
                 trabajador.asistencias = trabajador.asistencias.filter(a => a.id !== asistenciaId);
                 guardarDatos();
-                renderizarTrabajadores();
             }
         }
 
-        // --- FUNCIÓN PARA LIQUIDAR Y SALDAR CUENTA DE TRABAJADOR ---
         function realizarPagoTrabajador(trabajadorId) {
             const trabajador = trabajadores.find(t => t.id === trabajadorId);
-            if (!trabajador || trabajador.asistencias.length === 0) {
-                return alert("No hay montos pendientes por pagar a este trabajador.");
-            }
+            if (!trabajador || !trabajador.asistencias || trabajador.asistencias.length === 0) return alert("No hay montos pendientes por pagar.");
 
             const totalAPagar = trabajador.asistencias.reduce((sum, a) => sum + (a.totalDia || a.montoCobrado), 0);
 
-            if (confirm(`¿Confirmas que ya realizaste el pago de $${totalAPagar.toLocaleString('es-CL')} a ${trabajador.nombre}? El monto actual volverá a $0 y las jornadas se guardarán en el historial.`)) {
+            if (confirm(`¿Confirmas que ya realizaste el pago de $${totalAPagar.toLocaleString('es-CL')} a ${trabajador.nombre}?`)) {
                 if (!trabajador.historialPagos) trabajador.historialPagos = [];
-
                 const hoy = new Date().toLocaleDateString('es-CL');
-                trabajador.historialPagos.unshift({
-                    id: generateId(),
-                    fechaPago: hoy,
-                    totalPagado: totalAPagar,
-                    jornadas: [...trabajador.asistencias]
-                });
-
-                // Reiniciar asistencias pendientes a 0
+                trabajador.historialPagos.unshift({ id: generateId(), fechaPago: hoy, totalPagado: totalAPagar, jornadas: [...trabajador.asistencias] });
                 trabajador.asistencias = [];
-
                 guardarDatos();
-                renderizarTrabajadores();
             }
         }
 
@@ -464,45 +361,29 @@
 
             trabajadores.forEach(trab => {
                 if (!trab.historialPagos) trab.historialPagos = [];
+                if (!trab.asistencias) trab.asistencias = [];
 
-                const totalMonto = trab.asistencias.reduce((sum, asis) => {
-                    return sum + (asis.totalDia !== undefined ? asis.totalDia : asis.montoCobrado);
-                }, 0);
+                const totalMonto = trab.asistencias.reduce((sum, asis) => sum + (asis.totalDia !== undefined ? asis.totalDia : asis.montoCobrado), 0);
 
                 let filasAsistencias = trab.asistencias.map(asis => {
                     const base = asis.montoBase !== undefined ? asis.montoBase : asis.montoCobrado;
                     const totalD = asis.totalDia !== undefined ? asis.totalDia : asis.montoCobrado;
                     const strExtras = asis.detalleExtras ? asis.detalleExtras : (asis.montoExtras ? 'Extras aplicados' : 'Ninguno');
+                    return `<tr><td>${asis.fecha}<span class="text-sm">${asis.diaNombre}</span></td><td>${asis.programaNombre}</td><td>$${base.toLocaleString('es-CL')}</td><td>$${(asis.montoExtras || 0).toLocaleString('es-CL')}<span class="text-sm">${strExtras}</span></td><td class="monto-total-td">$${totalD.toLocaleString('es-CL')}</td><td><button class="btn-delete" style="padding: 0.25rem 0.5rem; height: auto;" onclick="eliminarAsistencia('${trab.id}', '${asis.id}')">X</button></td></tr>`;
+                }).join('');
 
-                    return `
-                    <tr>
-                        <td>${asis.fecha}<span class="text-sm">${asis.diaNombre}</span></td>
-                        <td>${asis.programaNombre}</td>
-                        <td>$${base.toLocaleString('es-CL')}</td>
-                        <td>$${(asis.montoExtras || 0).toLocaleString('es-CL')}<span class="text-sm">${strExtras}</span></td>
-                        <td class="monto-total-td">$${totalD.toLocaleString('es-CL')}</td>
-                        <td><button class="btn-delete" style="padding: 0.25rem 0.5rem; height: auto;" onclick="eliminarAsistencia('${trab.id}', '${asis.id}')">X</button></td>
-                    </tr>
-                `}).join('');
+                if (trab.asistencias.length === 0) filasAsistencias = `<tr><td colspan="6" style="text-align:center; color: var(--text-light);">No hay asistencias pendientes por pagar.</td></tr>`;
 
-                if (trab.asistencias.length === 0) {
-                    filasAsistencias = `<tr><td colspan="6" style="text-align:center; color: var(--text-light);">No hay asistencias pendientes por pagar.</td></tr>`;
-                }
-
-                // Renderizar Historial de Pagos
                 let HTMLHistorial = trab.historialPagos.map(pago => `
                     <div class="history-card">
-                        <div style="display:flex; justify-size:space-between; font-weight:bold; color:var(--primary); border-bottom: 1px solid var(--border); padding-bottom:0.25rem; margin-bottom:0.5rem;">
-                            <span>Fecha de Pago: ${pago.fechaPago}</span>
-                            <span style="color:var(--success);">Monto Saldado: $${pago.totalPagado.toLocaleString('es-CL')}</span>
+                        <div style="display:flex; justify-content:space-between; font-weight:bold; color:var(--primary); border-bottom: 1px solid var(--border); padding-bottom:0.25rem; margin-bottom:0.5rem;">
+                            <span>Fecha: ${pago.fechaPago}</span><span style="color:var(--success);">Saldado: $${pago.totalPagado.toLocaleString('es-CL')}</span>
                         </div>
-                        <span class="text-sm">Jornadas liquidadas: ${pago.jornadas.map(j => `${j.programaNombre} (${j.fecha})`).join(', ')}</span>
+                        <span class="text-sm">Jornadas: ${pago.jornadas.map(j => `${j.programaNombre} (${j.fecha})`).join(', ')}</span>
                     </div>
                 `).join('');
 
-                if (trab.historialPagos.length === 0) {
-                    HTMLHistorial = `<p class="text-sm" style="color: var(--text-light);">Sin pagos registrados previamente.</p>`;
-                }
+                if (trab.historialPagos.length === 0) HTMLHistorial = `<p class="text-sm" style="color: var(--text-light);">Sin pagos registrados previamente.</p>`;
 
                 contenedor.innerHTML += `
                     <div class="card">
@@ -517,86 +398,38 @@
                         <form class="attendance-form" onsubmit="agregarAsistencia(event, '${trab.id}')">
                             <h3 class="section-title">1. Datos de la jornada</h3>
                             <div class="form-grid">
-                                <div class="input-group">
-                                    <label>Fecha</label>
-                                    <input type="date" class="asis-fecha" required>
-                                </div>
-                                <div class="input-group">
-                                    <label>Día (Ej. Lunes)</label>
-                                    <input type="text" class="asis-dianombre" placeholder="Lunes" required>
-                                </div>
+                                <div class="input-group"><label>Fecha</label><input type="date" class="asis-fecha" required></div>
+                                <div class="input-group"><label>Día</label><input type="text" class="asis-dianombre" placeholder="Lunes" required></div>
                                 <div class="input-group">
                                     <label>Programa Asistido</label>
-                                    <select class="asis-programa" required>
-                                        <option value="">Seleccione un programa...</option>
-                                        ${opcionesProgramas}
-                                    </select>
+                                    <select class="asis-programa" required><option value="">Seleccione un programa...</option>${opcionesProgramas}</select>
                                 </div>
                             </div>
-
-                            <h3 class="section-title">2. Adicionales de la jornada</h3>
+                            <h3 class="section-title">2. Adicionales</h3>
                             <div class="form-grid">
-                                <div class="checkbox-group">
-                                    <input type="checkbox" id="almuerzo-${trab.id}" class="asis-noalmuerzo">
-                                    <label for="almuerzo-${trab.id}">No almorzó (+$5.000)</label>
-                                </div>
-                                <div class="input-group">
-                                    <label>Invitados (+$1.000 c/u)</label>
-                                    <input type="number" class="asis-invitados" min="0" value="0" style="max-width: 150px;">
-                                </div>
+                                <div class="checkbox-group"><input type="checkbox" id="almuerzo-${trab.id}" class="asis-noalmuerzo"><label for="almuerzo-${trab.id}">No almorzó (+$5.000)</label></div>
+                                <div class="input-group"><label>Invitados (+$1.000 c/u)</label><input type="number" class="asis-invitados" min="0" value="0" style="max-width: 150px;"></div>
                             </div>
-
                             <div class="checkbox-group" style="margin-top: 1rem;">
                                 <input type="checkbox" id="extra-${trab.id}" class="asis-toggle-extra" onchange="toggleExtraFields(this)">
-                                <label for="extra-${trab.id}" style="color: var(--primary); font-weight: bold;">¿Desea agregar un pago extra o caso especial?</label>
+                                <label for="extra-${trab.id}" style="color: var(--primary); font-weight: bold;">¿Agregar un pago extra o caso especial?</label>
                             </div>
-                            
                             <div class="extra-fields">
-                                <div class="input-group">
-                                    <label>Monto Extra ($)</label>
-                                    <input type="number" class="asis-monto-extra" min="0" placeholder="Ej. 15000">
-                                </div>
-                                <div class="input-group">
-                                    <label>Motivo o Detalle del Extra</label>
-                                    <input type="text" class="asis-detalle-extra" placeholder="Ej. Transporte, bono por hora extra...">
-                                </div>
+                                <div class="input-group"><label>Monto Extra ($)</label><input type="number" class="asis-monto-extra" min="0" placeholder="Ej. 15000"></div>
+                                <div class="input-group"><label>Motivo Extra</label><input type="text" class="asis-detalle-extra" placeholder="Ej. Transporte..."></div>
                             </div>
-
                             <button type="submit" class="btn-full">Cerrar y Agregar Jornada</button>
                         </form>
-
-                        <h3>Jornadas Pendientes de Pago</h3>
+                        <h3>Jornadas Pendientes</h3>
                         <table>
-                            <thead>
-                                <tr>
-                                    <th>Fecha y Día</th>
-                                    <th>Programa</th>
-                                    <th>Monto Base</th>
-                                    <th>Extras</th>
-                                    <th>Total Día</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
+                            <thead><tr><th>Fecha y Día</th><th>Programa</th><th>Monto Base</th><th>Extras</th><th>Total Día</th><th></th></tr></thead>
                             <tbody>${filasAsistencias}</tbody>
                         </table>
-
-                        <div class="history-section">
-                            <h3>Historial de Pagos Realizados</h3>
-                            ${HTMLHistorial}
-                        </div>
+                        <div class="history-section"><h3>Historial de Pagos</h3>${HTMLHistorial}</div>
                     </div>
                 `;
             });
         }
-
-        function actualizarSelectsProgramas() { renderizarTrabajadores(); }
-        function guardarDatos() {
-            localStorage.setItem('nat_programas', JSON.stringify(programas));
-            localStorage.setItem('nat_trabajadores', JSON.stringify(trabajadores));
-        }
-
-        renderizarProgramas();
-        renderizarTrabajadores();
     </script>
 </body>
 </html>
