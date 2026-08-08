@@ -68,6 +68,13 @@
         button { padding: 0.75rem 1.5rem; background-color: var(--primary); color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; min-height: 45px; }
         button.btn-delete { background-color: #ef4444; }
         button.btn-pay { background-color: #10b981; }
+        
+        /* Estilos botones pequeños de editar/eliminar */
+        .btn-small-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 0.3rem 0.6rem; height: auto; min-height: 0; font-size: 0.85rem; border-radius: 4px; }
+        .btn-small-outline:hover { background: var(--primary); color: white; }
+        .btn-small-delete { background: #ef4444; color: white; padding: 0.3rem 0.6rem; height: auto; min-height: 0; font-size: 0.85rem; border-radius: 4px; border: none; }
+        .btn-small-delete:hover { background: #dc2626; }
+
         .btn-full { width: 100%; margin-top: 1rem; background-color: var(--primary); }
 
         /* Contenedor de tablas para scroll en móviles */
@@ -78,7 +85,7 @@
         .text-sm { font-size: 0.85rem; color: var(--text-light); display: block; line-height: 1.4; }
         .monto-total-td { font-weight: bold; color: var(--success); }
 
-        .worker-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--bg); padding-bottom: 1rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
+        .worker-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid var(--bg); padding-bottom: 1rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
         .worker-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
         .worker-total { font-size: 1.25rem; font-weight: bold; color: var(--success); background: var(--form-bg); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border); }
         .attendance-form { background-color: var(--form-bg); padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; border: 1px solid var(--border); }
@@ -327,6 +334,25 @@
             e.target.reset();
         }
 
+        function editarTrabajador(id) {
+            const trabajador = trabajadores.find(t => t.id === id);
+            if (!trabajador) return;
+            const nuevoNombre = prompt("Edita el nombre del trabajador:", trabajador.nombre);
+            if (nuevoNombre !== null && nuevoNombre.trim() !== "") {
+                trabajador.nombre = nuevoNombre.trim();
+                guardarDatos();
+            }
+        }
+
+        function eliminarTrabajador(id) {
+            const trabajador = trabajadores.find(t => t.id === id);
+            if (!trabajador) return;
+            if (confirm(`⚠️ ¿Estás COMPLETAMENTE seguro de eliminar a ${trabajador.nombre}?\n\nAl hacer esto, se borrarán TODOS sus pagos pendientes y todo su historial de la pestaña de contabilidad. ¡Esta acción no se puede deshacer!`)) {
+                trabajadores = trabajadores.filter(t => t.id !== id);
+                guardarDatos();
+            }
+        }
+
         function toggleExtraFields(checkbox) {
             const extraContainer = checkbox.closest('form').querySelector('.extra-fields');
             if (checkbox.checked) { extraContainer.classList.add('active'); } 
@@ -473,7 +499,11 @@
                 contenedor.innerHTML += `
                     <div class="card">
                         <div class="worker-header">
-                            <h2 style="margin:0;">${trab.nombre}</h2>
+                            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                                <h2 style="margin:0;">${trab.nombre}</h2>
+                                <button onclick="editarTrabajador('${trab.id}')" class="btn-small-outline">✏️ Editar</button>
+                                <button onclick="eliminarTrabajador('${trab.id}')" class="btn-small-delete">🗑️ Eliminar</button>
+                            </div>
                             <div class="worker-actions">
                                 <div class="worker-total">Pendiente: $${totalMonto.toLocaleString('es-CL')}</div>
                                 <button class="btn-pay" onclick="realizarPagoTrabajador('${trab.id}')">✓ Confirmar Pago y Generar TXT</button>
