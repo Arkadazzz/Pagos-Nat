@@ -55,7 +55,7 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        .card { background-color: var(--card-bg); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; }
+        .card { background-color: var(--card-bg); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; transition: all 0.3s; }
         
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; align-items: flex-end; }
         .input-group { display: flex; flex-direction: column; }
@@ -69,15 +69,17 @@
         button.btn-delete { background-color: #ef4444; }
         button.btn-pay { background-color: #10b981; }
         
-        /* Estilos botones pequeños de editar/eliminar */
+        /* Estilos botones pequeños */
         .btn-small-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 0.3rem 0.6rem; height: auto; min-height: 0; font-size: 0.85rem; border-radius: 4px; }
         .btn-small-outline:hover { background: var(--primary); color: white; }
         .btn-small-delete { background: #ef4444; color: white; padding: 0.3rem 0.6rem; height: auto; min-height: 0; font-size: 0.85rem; border-radius: 4px; border: none; }
         .btn-small-delete:hover { background: #dc2626; }
+        .toggle-btn { background: none; border: none; color: var(--primary); font-size: 1.4rem; font-weight: bold; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 0.5rem; text-align: left; }
+        .toggle-btn:hover { color: var(--primary-hover); }
 
         .btn-full { width: 100%; margin-top: 1rem; background-color: var(--primary); }
 
-        /* Contenedor de tablas para scroll en móviles */
+        /* Contenedor de tablas */
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 1rem; }
         table { width: 100%; border-collapse: collapse; min-width: 700px; }
         th, td { text-align: left; padding: 1rem; border-bottom: 1px solid var(--border); }
@@ -85,7 +87,7 @@
         .text-sm { font-size: 0.85rem; color: var(--text-light); display: block; line-height: 1.4; }
         .monto-total-td { font-weight: bold; color: var(--success); }
 
-        .worker-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid var(--bg); padding-bottom: 1rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
+        .worker-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
         .worker-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
         .worker-total { font-size: 1.25rem; font-weight: bold; color: var(--success); background: var(--form-bg); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border); }
         .attendance-form { background-color: var(--form-bg); padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; border: 1px solid var(--border); }
@@ -469,6 +471,19 @@
             document.body.removeChild(link);
         }
 
+        // --- SISTEMA DE ACORDEÓN ---
+        function toggleDetalles(id) {
+            const panel = document.getElementById('detalles-' + id);
+            const flecha = document.getElementById('flecha-' + id);
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                flecha.innerText = '▼';
+            } else {
+                panel.style.display = 'none';
+                flecha.innerText = '▶';
+            }
+        }
+
         function renderizarTrabajadores() {
             const contenedor = document.getElementById('lista-trabajadores');
             contenedor.innerHTML = '';
@@ -498,9 +513,12 @@
 
                 contenedor.innerHTML += `
                     <div class="card">
+                        <!-- ENCABEZADO SIEMPRE VISIBLE -->
                         <div class="worker-header">
-                            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-                                <h2 style="margin:0;">${trab.nombre}</h2>
+                            <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                                <button onclick="toggleDetalles('${trab.id}')" class="toggle-btn">
+                                    <span id="flecha-${trab.id}">▶</span> ${trab.nombre}
+                                </button>
                                 <button onclick="editarTrabajador('${trab.id}')" class="btn-small-outline">✏️ Editar</button>
                                 <button onclick="eliminarTrabajador('${trab.id}')" class="btn-small-delete">🗑️ Eliminar</button>
                             </div>
@@ -510,38 +528,41 @@
                             </div>
                         </div>
                         
-                        <form class="attendance-form" onsubmit="agregarAsistencia(event, '${trab.id}')">
-                            <h3 class="section-title">1. Datos de la jornada</h3>
-                            <div class="form-grid">
-                                <div class="input-group"><label>Fecha</label><input type="date" class="asis-fecha" required></div>
-                                <div class="input-group"><label>Día</label><input type="text" class="asis-dianombre" placeholder="Lunes" required></div>
-                                <div class="input-group">
-                                    <label>Programa Asistido</label>
-                                    <select class="asis-programa" required><option value="">Seleccione un programa...</option>${opcionesProgramas}</select>
+                        <!-- CONTENIDO DESPLEGABLE (OCULTO POR DEFECTO) -->
+                        <div id="detalles-${trab.id}" style="display: none; padding-top: 1rem; border-top: 1px dashed var(--border);">
+                            <form class="attendance-form" onsubmit="agregarAsistencia(event, '${trab.id}')">
+                                <h3 class="section-title">1. Datos de la jornada</h3>
+                                <div class="form-grid">
+                                    <div class="input-group"><label>Fecha</label><input type="date" class="asis-fecha" required></div>
+                                    <div class="input-group"><label>Día</label><input type="text" class="asis-dianombre" placeholder="Lunes" required></div>
+                                    <div class="input-group">
+                                        <label>Programa Asistido</label>
+                                        <select class="asis-programa" required><option value="">Seleccione un programa...</option>${opcionesProgramas}</select>
+                                    </div>
                                 </div>
+                                <h3 class="section-title">2. Adicionales</h3>
+                                <div class="form-grid">
+                                    <div class="checkbox-group"><input type="checkbox" id="almuerzo-${trab.id}" class="asis-noalmuerzo"><label for="almuerzo-${trab.id}">No almorzó (+$5.000)</label></div>
+                                    <div class="input-group"><label>Invitados (+$1.000 c/u)</label><input type="number" class="asis-invitados" min="0" value="0" style="max-width: 150px;"></div>
+                                </div>
+                                <div class="checkbox-group" style="margin-top: 1rem;">
+                                    <input type="checkbox" id="extra-${trab.id}" class="asis-toggle-extra" onchange="toggleExtraFields(this)">
+                                    <label for="extra-${trab.id}" style="color: var(--primary); font-weight: bold;">¿Agregar un pago extra o caso especial?</label>
+                                </div>
+                                <div class="extra-fields">
+                                    <div class="input-group"><label>Monto Extra ($)</label><input type="number" class="asis-monto-extra" min="0" placeholder="Ej. 15000"></div>
+                                    <div class="input-group"><label>Motivo Extra</label><input type="text" class="asis-detalle-extra" placeholder="Ej. Transporte..."></div>
+                                </div>
+                                <button type="submit" class="btn-full">Cerrar y Agregar Jornada</button>
+                            </form>
+                            
+                            <h3>Jornadas Pendientes por Pagar</h3>
+                            <div class="table-responsive">
+                                <table>
+                                    <thead><tr><th>Fecha y Día</th><th>Programa</th><th>Monto Base</th><th>Extras</th><th>Total Día</th><th></th></tr></thead>
+                                    <tbody>${filasAsistencias}</tbody>
+                                </table>
                             </div>
-                            <h3 class="section-title">2. Adicionales</h3>
-                            <div class="form-grid">
-                                <div class="checkbox-group"><input type="checkbox" id="almuerzo-${trab.id}" class="asis-noalmuerzo"><label for="almuerzo-${trab.id}">No almorzó (+$5.000)</label></div>
-                                <div class="input-group"><label>Invitados (+$1.000 c/u)</label><input type="number" class="asis-invitados" min="0" value="0" style="max-width: 150px;"></div>
-                            </div>
-                            <div class="checkbox-group" style="margin-top: 1rem;">
-                                <input type="checkbox" id="extra-${trab.id}" class="asis-toggle-extra" onchange="toggleExtraFields(this)">
-                                <label for="extra-${trab.id}" style="color: var(--primary); font-weight: bold;">¿Agregar un pago extra o caso especial?</label>
-                            </div>
-                            <div class="extra-fields">
-                                <div class="input-group"><label>Monto Extra ($)</label><input type="number" class="asis-monto-extra" min="0" placeholder="Ej. 15000"></div>
-                                <div class="input-group"><label>Motivo Extra</label><input type="text" class="asis-detalle-extra" placeholder="Ej. Transporte..."></div>
-                            </div>
-                            <button type="submit" class="btn-full">Cerrar y Agregar Jornada</button>
-                        </form>
-                        
-                        <h3>Jornadas Pendientes por Pagar</h3>
-                        <div class="table-responsive">
-                            <table>
-                                <thead><tr><th>Fecha y Día</th><th>Programa</th><th>Monto Base</th><th>Extras</th><th>Total Día</th><th></th></tr></thead>
-                                <tbody>${filasAsistencias}</tbody>
-                            </table>
                         </div>
                     </div>
                 `;
