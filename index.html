@@ -65,7 +65,7 @@
 
         label { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-light); }
         input, select { padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; background-color: var(--card-bg); color: var(--text); }
-        button { padding: 0.75rem 1.5rem; background-color: var(--primary); color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; min-height: 45px; }
+        button { padding: 0.75rem 1.5rem; background-color: var(--primary); color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; min-height: 45px; transition: background-color 0.2s; }
         button.btn-delete { background-color: #ef4444; }
         button.btn-pay { background-color: #10b981; }
         
@@ -78,6 +78,8 @@
         .toggle-btn:hover { color: var(--primary-hover); }
 
         .btn-full { width: 100%; margin-top: 1rem; background-color: var(--primary); }
+        .btn-cancel { width: 100%; margin-top: 0.5rem; background-color: #6b7280; }
+        .btn-cancel:hover { background-color: #4b5563; }
 
         /* Contenedor de tablas */
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 1rem; }
@@ -361,6 +363,92 @@
             else { extraContainer.classList.remove('active'); extraContainer.querySelector('.asis-monto-extra').value = ''; extraContainer.querySelector('.asis-detalle-extra').value = ''; }
         }
 
+        // NUEVO: PREPARAR EDICIÓN DE JORNADA
+        function prepararEdicionAsistencia(trabajadorId, asistenciaId) {
+            const trabajador = trabajadores.find(t => t.id === trabajadorId);
+            const asis = trabajador.asistencias.find(a => a.id === asistenciaId);
+            if (!asis) return;
+
+            // Asegurar que el panel esté abierto
+            const panel = document.getElementById('detalles-' + trabajadorId);
+            const flecha = document.getElementById('flecha-' + trabajadorId);
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                flecha.innerText = '▼';
+            }
+
+            const form = document.getElementById('form-asis-' + trabajadorId);
+            
+            // Marcar el formulario en "Modo Edición" guardando el ID
+            form.dataset.editId = asistenciaId;
+
+            // Rellenar campos básicos
+            form.querySelector('.asis-fecha').value = asis.fecha || '';
+            form.querySelector('.asis-dianombre').value = asis.diaNombre || '';
+            
+            // Buscar y seleccionar el programa
+            let progId = asis.programaId;
+            if (!progId) { // Compatibilidad con datos antiguos
+                const prog = programas.find(p => p.nombre === asis.programaNombre);
+                if (prog) progId = prog.id;
+            }
+            form.querySelector('.asis-programa').value = progId || '';
+
+            // Rellenar adicionales
+            form.querySelector('.asis-noalmuerzo').checked = asis.noAlmuerzo || false;
+            form.querySelector('.asis-invitados').value = asis.cantInvitados || 0;
+            form.querySelector('.asis-horas-extra').value = asis.horasExtra || 0;
+
+            // Rellenar bono extra
+            if (asis.montoExtraManual > 0) {
+                form.querySelector('.asis-toggle-extra').checked = true;
+                toggleExtraFields(form.querySelector('.asis-toggle-extra'));
+                form.querySelector('.asis-monto-extra').value = asis.montoExtraManual;
+                form.querySelector('.asis-detalle-extra').value = asis.detalleExtraManual || '';
+            } else {
+                form.querySelector('.asis-toggle-extra').checked = false;
+                toggleExtraFields(form.querySelector('.asis-toggle-extra'));
+                form.querySelector('.asis-monto-extra').value = '';
+                form.querySelector('.asis-detalle-extra').value = '';
+            }
+
+            // Cambiar botones
+            const btnSubmit = form.querySelector('.btn-submit-asis');
+            btnSubmit.innerText = "💾 Guardar Cambios de Jornada";
+            btnSubmit.style.backgroundColor = "#f59e0b"; // Naranja
+
+            let btnCancel = form.querySelector('.btn-cancel');
+            if (!btnCancel) {
+                btnCancel = document.createElement('button');
+                btnCancel.type = "button";
+                btnCancel.className = "btn-cancel";
+                btnCancel.innerText = "❌ Cancelar Edición";
+                btnCancel.onclick = () => cancelarEdicionAsistencia(trabajadorId);
+                form.appendChild(btnCancel);
+            }
+
+            // Scroll suave hacia el formulario
+            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function cancelarEdicionAsistencia(trabajadorId) {
+            const form = document.getElementById('form-asis-' + trabajadorId);
+            delete form.dataset.editId; // Quitar modo edición
+            form.reset();
+            
+            // Ocultar campo extra
+            form.querySelector('.asis-toggle-extra').checked = false;
+            toggleExtraFields(form.querySelector('.asis-toggle-extra'));
+
+            // Restaurar botones
+            const btnSubmit = form.querySelector('.btn-submit-asis');
+            btnSubmit.innerText = "Cerrar y Agregar Jornada";
+            btnSubmit.style.backgroundColor = "var(--primary)";
+            
+            const btnCancel = form.querySelector('.btn-cancel');
+            if (btnCancel) btnCancel.remove();
+        }
+
         function agregarAsistencia(e, trabajadorId) {
             e.preventDefault();
             const form = e.target;
@@ -396,7 +484,6 @@
                 desgloseExtras.push(`${cantInvitados} Invitado(s) (+$${totInv.toLocaleString('es-CL')})`); 
             }
             if (horasExtra > 0) {
-                // Candado de seguridad para máximo 5 horas extra
                 const horasValidas = Math.min(horasExtra, 5);
                 const totHoras = horasValidas * 3000;
                 montoExtras += totHoras;
@@ -409,11 +496,31 @@
 
             const totalDia = programa.monto + montoExtras;
 
-            if(!trabajador.asistencias) trabajador.asistencias = [];
-            trabajador.asistencias.push({
-                id: generateId(), diaNombre, fecha, programaNombre: programa.nombre,
-                montoBase: programa.monto, montoExtras: montoExtras, detalleExtras: desgloseExtras.join(' | '), totalDia: totalDia, montoCobrado: totalDia 
-            });
+            const editId = form.dataset.editId;
+
+            const nuevaJornada = {
+                id: editId ? editId : generateId(), 
+                diaNombre, fecha, programaNombre: programa.nombre, programaId: programa.id,
+                montoBase: programa.monto, montoExtras: montoExtras, detalleExtras: desgloseExtras.join(' | '), 
+                totalDia: totalDia, montoCobrado: totalDia,
+                // Guardamos los datos puros para poder re-editar después
+                noAlmuerzo, cantInvitados, horasExtra, montoExtraManual: montoExtra, detalleExtraManual: detalleExtra
+            };
+
+            if (!trabajador.asistencias) trabajador.asistencias = [];
+
+            if (editId) {
+                // Si estamos editando, reemplazamos la existente
+                const index = trabajador.asistencias.findIndex(a => a.id === editId);
+                if (index !== -1) trabajador.asistencias[index] = nuevaJornada;
+                cancelarEdicionAsistencia(trabajadorId); // Limpia el form y botones
+            } else {
+                // Si es nueva, la agregamos al final
+                trabajador.asistencias.push(nuevaJornada);
+                form.reset();
+                form.querySelector('.asis-toggle-extra').checked = false;
+                toggleExtraFields(form.querySelector('.asis-toggle-extra'));
+            }
 
             guardarDatos();
         }
@@ -495,19 +602,6 @@
             document.body.removeChild(link);
         }
 
-        // --- SISTEMA DE ACORDEÓN ---
-        function toggleDetalles(id) {
-            const panel = document.getElementById('detalles-' + id);
-            const flecha = document.getElementById('flecha-' + id);
-            if (panel.style.display === 'none') {
-                panel.style.display = 'block';
-                flecha.innerText = '▼';
-            } else {
-                panel.style.display = 'none';
-                flecha.innerText = '▶';
-            }
-        }
-
         function renderizarTrabajadores() {
             const contenedor = document.getElementById('lista-trabajadores');
             contenedor.innerHTML = '';
@@ -529,7 +623,10 @@
                                 <td>$${base.toLocaleString('es-CL')}</td>
                                 <td>$${(asis.montoExtras || 0).toLocaleString('es-CL')}<span class="text-sm">${strExtras}</span></td>
                                 <td class="monto-total-td">$${totalD.toLocaleString('es-CL')}</td>
-                                <td><button class="btn-delete" style="padding: 0.25rem 0.5rem; height: auto;" onclick="eliminarAsistencia('${trab.id}', '${asis.id}')">X</button></td>
+                                <td style="white-space: nowrap;">
+                                    <button class="btn-small-outline" style="padding: 0.25rem 0.5rem; height: auto; margin-right: 0.25rem;" onclick="prepararEdicionAsistencia('${trab.id}', '${asis.id}')">✏️</button>
+                                    <button class="btn-delete" style="padding: 0.25rem 0.5rem; height: auto;" onclick="eliminarAsistencia('${trab.id}', '${asis.id}')">X</button>
+                                </td>
                             </tr>`;
                 }).join('');
 
@@ -543,8 +640,8 @@
                                 <button onclick="toggleDetalles('${trab.id}')" class="toggle-btn">
                                     <span id="flecha-${trab.id}">▶</span> ${trab.nombre}
                                 </button>
-                                <button onclick="editarTrabajador('${trab.id}')" class="btn-small-outline">✏️ Editar</button>
-                                <button onclick="eliminarTrabajador('${trab.id}')" class="btn-small-delete">🗑️ Eliminar</button>
+                                <button onclick="editarTrabajador('${trab.id}')" class="btn-small-outline">✏️ Editar Nombre</button>
+                                <button onclick="eliminarTrabajador('${trab.id}')" class="btn-small-delete">🗑️ Eliminar Trabajador</button>
                             </div>
                             <div class="worker-actions">
                                 <div class="worker-total">Pendiente: $${totalMonto.toLocaleString('es-CL')}</div>
@@ -554,7 +651,7 @@
                         
                         <!-- CONTENIDO DESPLEGABLE (OCULTO POR DEFECTO) -->
                         <div id="detalles-${trab.id}" style="display: none; padding-top: 1rem; border-top: 1px dashed var(--border);">
-                            <form class="attendance-form" onsubmit="agregarAsistencia(event, '${trab.id}')">
+                            <form id="form-asis-${trab.id}" class="attendance-form" onsubmit="agregarAsistencia(event, '${trab.id}')">
                                 <h3 class="section-title">1. Datos de la jornada</h3>
                                 <div class="form-grid">
                                     <div class="input-group"><label>Fecha</label><input type="date" class="asis-fecha" required></div>
@@ -578,13 +675,13 @@
                                     <div class="input-group"><label>Monto Extra ($)</label><input type="number" class="asis-monto-extra" min="0" placeholder="Ej. 15000"></div>
                                     <div class="input-group"><label>Motivo Extra</label><input type="text" class="asis-detalle-extra" placeholder="Ej. Transporte..."></div>
                                 </div>
-                                <button type="submit" class="btn-full">Cerrar y Agregar Jornada</button>
+                                <button type="submit" class="btn-full btn-submit-asis">Cerrar y Agregar Jornada</button>
                             </form>
                             
                             <h3>Jornadas Pendientes por Pagar</h3>
                             <div class="table-responsive">
                                 <table>
-                                    <thead><tr><th>Fecha y Día</th><th>Programa</th><th>Monto Base</th><th>Extras</th><th>Total Día</th><th></th></tr></thead>
+                                    <thead><tr><th>Fecha y Día</th><th>Programa</th><th>Monto Base</th><th>Extras</th><th>Total Día</th><th>Acción</th></tr></thead>
                                     <tbody>${filasAsistencias}</tbody>
                                 </table>
                             </div>
