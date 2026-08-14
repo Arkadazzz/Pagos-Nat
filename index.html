@@ -367,8 +367,13 @@
             const diaNombre = form.querySelector('.asis-dianombre').value;
             const fecha = form.querySelector('.asis-fecha').value;
             const programaId = form.querySelector('.asis-programa').value;
+            
+            // Adicionales
             const noAlmuerzo = form.querySelector('.asis-noalmuerzo').checked;
             const cantInvitados = parseInt(form.querySelector('.asis-invitados').value) || 0;
+            const horasExtra = parseInt(form.querySelector('.asis-horas-extra').value) || 0;
+            
+            // Pago extra variable
             const hayExtra = form.querySelector('.asis-toggle-extra').checked;
             const montoExtra = hayExtra ? (parseFloat(form.querySelector('.asis-monto-extra').value) || 0) : 0;
             const detalleExtra = hayExtra ? form.querySelector('.asis-detalle-extra').value : "";
@@ -378,10 +383,29 @@
 
             const trabajador = trabajadores.find(t => t.id === trabajadorId);
             
-            let montoExtras = 0; let desgloseExtras = [];
-            if (noAlmuerzo) { montoExtras += 5000; desgloseExtras.push("Sin almuerzo (+$5.000)"); }
-            if (cantInvitados > 0) { const totInv = cantInvitados * 1000; montoExtras += totInv; desgloseExtras.push(`${cantInvitados} Invitado(s) (+$${totInv.toLocaleString('es-CL')})`); }
-            if (montoExtra > 0) { montoExtras += montoExtra; desgloseExtras.push(`${detalleExtra || 'Bono extra'} (+$${montoExtra.toLocaleString('es-CL')})`); }
+            let montoExtras = 0; 
+            let desgloseExtras = [];
+            
+            if (noAlmuerzo) { 
+                montoExtras += 5000; 
+                desgloseExtras.push("Sin almuerzo (+$5.000)"); 
+            }
+            if (cantInvitados > 0) { 
+                const totInv = cantInvitados * 1000; 
+                montoExtras += totInv; 
+                desgloseExtras.push(`${cantInvitados} Invitado(s) (+$${totInv.toLocaleString('es-CL')})`); 
+            }
+            if (horasExtra > 0) {
+                // Candado de seguridad para máximo 5 horas extra
+                const horasValidas = Math.min(horasExtra, 5);
+                const totHoras = horasValidas * 3000;
+                montoExtras += totHoras;
+                desgloseExtras.push(`${horasValidas} Hora(s) extra (+$${totHoras.toLocaleString('es-CL')})`);
+            }
+            if (montoExtra > 0) { 
+                montoExtras += montoExtra; 
+                desgloseExtras.push(`${detalleExtra || 'Bono extra'} (+$${montoExtra.toLocaleString('es-CL')})`); 
+            }
 
             const totalDia = programa.monto + montoExtras;
 
@@ -544,6 +568,7 @@
                                 <div class="form-grid">
                                     <div class="checkbox-group"><input type="checkbox" id="almuerzo-${trab.id}" class="asis-noalmuerzo"><label for="almuerzo-${trab.id}">No almorzó (+$5.000)</label></div>
                                     <div class="input-group"><label>Invitados (+$1.000 c/u)</label><input type="number" class="asis-invitados" min="0" value="0" style="max-width: 150px;"></div>
+                                    <div class="input-group"><label>Horas Extra (+$3.000, máx 5)</label><input type="number" class="asis-horas-extra" min="0" max="5" value="0" style="max-width: 150px;"></div>
                                 </div>
                                 <div class="checkbox-group" style="margin-top: 1rem;">
                                     <input type="checkbox" id="extra-${trab.id}" class="asis-toggle-extra" onchange="toggleExtraFields(this)">
