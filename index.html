@@ -602,6 +602,19 @@
             document.body.removeChild(link);
         }
 
+        // --- SISTEMA DE ACORDEÓN ---
+        function toggleDetalles(id) {
+            const panel = document.getElementById('detalles-' + id);
+            const flecha = document.getElementById('flecha-' + id);
+            if (panel.style.display === 'none' || panel.style.display === '') {
+                panel.style.display = 'block';
+                flecha.innerText = '▼';
+            } else {
+                panel.style.display = 'none';
+                flecha.innerText = '▶';
+            }
+        }
+
         function renderizarTrabajadores() {
             const contenedor = document.getElementById('lista-trabajadores');
             contenedor.innerHTML = '';
