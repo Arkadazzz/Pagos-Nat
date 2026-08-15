@@ -55,7 +55,8 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        .card { background-color: var(--card-bg); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; transition: all 0.3s; }
+        .card { background-color: var(--card-bg); border-radius: 8px; margin-bottom: 1.5rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid var(--border); transition: all 0.3s; }
+        .card-padding { padding: 1.5rem; }
         
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; align-items: flex-end; }
         .input-group { display: flex; flex-direction: column; }
@@ -70,30 +71,34 @@
         button.btn-pay { background-color: #10b981; }
         
         /* Estilos botones pequeños */
-        .btn-small-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 0.3rem 0.6rem; height: auto; min-height: 0; font-size: 0.85rem; border-radius: 4px; }
+        .btn-small-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 0.4rem 0.8rem; height: auto; min-height: 0; font-size: 0.9rem; border-radius: 4px; font-weight: 600; }
         .btn-small-outline:hover { background: var(--primary); color: white; }
-        .btn-small-delete { background: #ef4444; color: white; padding: 0.3rem 0.6rem; height: auto; min-height: 0; font-size: 0.85rem; border-radius: 4px; border: none; }
+        .btn-small-delete { background: #ef4444; color: white; padding: 0.4rem 0.8rem; height: auto; min-height: 0; font-size: 0.9rem; border-radius: 4px; border: none; font-weight: 600; }
         .btn-small-delete:hover { background: #dc2626; }
-        .toggle-btn { background: none; border: none; color: var(--primary); font-size: 1.4rem; font-weight: bold; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 0.5rem; text-align: left; }
-        .toggle-btn:hover { color: var(--primary-hover); }
 
         .btn-full { width: 100%; margin-top: 1rem; background-color: var(--primary); }
         .btn-cancel { width: 100%; margin-top: 0.5rem; background-color: #6b7280; }
         .btn-cancel:hover { background-color: #4b5563; }
 
         /* Contenedor de tablas */
-        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 1rem; }
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 1rem; border: 1px solid var(--border); border-radius: 6px; }
         table { width: 100%; border-collapse: collapse; min-width: 700px; }
         th, td { text-align: left; padding: 1rem; border-bottom: 1px solid var(--border); }
         th { background-color: var(--form-bg); font-weight: 600; }
         .text-sm { font-size: 0.85rem; color: var(--text-light); display: block; line-height: 1.4; }
         .monto-total-td { font-weight: bold; color: var(--success); }
 
-        .worker-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
-        .worker-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-        .worker-total { font-size: 1.25rem; font-weight: bold; color: var(--success); background: var(--form-bg); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border); }
+        /* Estilos específicos del bloque de trabajador encuadrado */
+        .worker-box-header { padding: 1.5rem; background-color: var(--form-bg); cursor: pointer; user-select: none; transition: background-color 0.2s; }
+        .worker-box-header:hover { background-color: var(--border); }
+        .worker-title-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .worker-name { font-size: 1.5rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
+        .worker-total-badge { font-size: 1.25rem; font-weight: bold; color: var(--success); background: var(--card-bg); padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--success); }
+        .worker-actions-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding-top: 1rem; margin-top: 1rem; border-top: 1px solid var(--border); cursor: default; }
+        .action-group-left { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        
         .attendance-form { background-color: var(--form-bg); padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; border: 1px solid var(--border); }
-        .section-title { font-size: 1rem; color: var(--primary); margin-top: 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+        .section-title { font-size: 1.1rem; color: var(--text); margin-top: 0; margin-bottom: 1rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; }
         
         .extra-fields { display: none; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border); background-color: var(--bg); padding: 1rem; border-radius: 6px; }
         .extra-fields.active { display: grid; }
@@ -107,15 +112,14 @@
         #app-content { display: none; }
         .error-msg { color: #ef4444; font-size: 0.875rem; margin-top: 1rem; min-height: 20px; }
 
-        /* Adaptabilidad a Celulares (Responsive) */
         @media (max-width: 768px) {
             header { flex-direction: column; gap: 1rem; padding: 1rem; }
             .header-actions { width: 100%; justify-content: space-between; }
-            .worker-actions { width: 100%; flex-direction: column; align-items: stretch; }
-            .worker-total { text-align: center; }
+            .worker-title-row { flex-direction: column; align-items: flex-start; }
+            .worker-actions-row { flex-direction: column; align-items: stretch; }
+            .action-group-left { width: 100%; justify-content: space-between; }
             .container { margin: 1rem auto; padding: 0 0.5rem; }
-            .card { padding: 1rem; }
-            .attendance-form { padding: 1rem; }
+            .card-padding { padding: 1rem; }
         }
     </style>
 </head>
@@ -145,7 +149,6 @@
             </div>
         </header>
 
-        <!-- Pestañas de Navegación -->
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('programas', this)">Programas y Tarifas</button>
             <button class="tab-btn" onclick="switchTab('trabajadores', this)">Pagos Pendientes</button>
@@ -156,7 +159,7 @@
             
             <!-- PESTAÑA 1: PROGRAMAS -->
             <div id="programas" class="tab-content active">
-                <div class="card">
+                <div class="card card-padding">
                     <h2>Agregar Nuevo Programa/Serie</h2>
                     <form id="form-programa" class="form-grid" onsubmit="agregarPrograma(event)">
                         <div class="input-group">
@@ -170,7 +173,7 @@
                         <button type="submit">Guardar Programa</button>
                     </form>
                 </div>
-                <div class="card">
+                <div class="card card-padding">
                     <h2>Programas Registrados</h2>
                     <div class="table-responsive">
                         <table>
@@ -185,7 +188,7 @@
 
             <!-- PESTAÑA 2: TRABAJADORES Y PENDIENTES -->
             <div id="trabajadores" class="tab-content">
-                <div class="card">
+                <div class="card card-padding">
                     <h2>Registrar Nuevo Trabajador</h2>
                     <form id="form-trabajador" class="form-grid" onsubmit="agregarTrabajador(event)">
                         <div class="input-group">
@@ -195,19 +198,19 @@
                         <button type="submit">Añadir Trabajador</button>
                     </form>
                 </div>
+                
+                <!-- LISTA DE TRABAJADORES ENCUADRADOS -->
                 <div id="lista-trabajadores"></div>
+                
             </div>
 
-            <!-- PESTAÑA 3: PAGOS REALIZADOS (CONTABILIDAD) -->
+            <!-- PESTAÑA 3: PAGOS REALIZADOS -->
             <div id="pagos-realizados" class="tab-content">
-                <div class="card">
+                <div class="card card-padding">
                     <h2>Contabilidad Global de Pagos</h2>
                     <p style="color: var(--text-light); margin-bottom: 1.5rem;">Aquí se registran todos los pagos que ya han sido transferidos a los trabajadores.</p>
-                    <div id="resumen-total-pagos" class="worker-total" style="margin-bottom: 2rem; display: inline-block;">Total Histórico: $0</div>
-                    
-                    <div id="lista-global-pagos">
-                        <!-- Aquí se inyectará el historial mediante JS -->
-                    </div>
+                    <div id="resumen-total-pagos" class="worker-total-badge" style="margin-bottom: 2rem; display: inline-block; background-color: var(--form-bg);">Total Histórico: $0</div>
+                    <div id="lista-global-pagos"></div>
                 </div>
             </div>
 
@@ -262,7 +265,6 @@
             }
         });
 
-        // --- SINCRONIZACIÓN CON BASE DE DATOS ---
         function iniciarBaseDeDatos() {
             db.ref('sistema-pagos').on('value', (snapshot) => {
                 const data = snapshot.val() || { programas: [], trabajadores: [] };
@@ -275,13 +277,9 @@
         }
 
         function guardarDatos() {
-            db.ref('sistema-pagos').set({
-                programas: programas,
-                trabajadores: trabajadores
-            });
+            db.ref('sistema-pagos').set({ programas: programas, trabajadores: trabajadores });
         }
 
-        // --- INTERFAZ Y MODO OSCURO ---
         function toggleTheme() {
             const body = document.documentElement;
             const btn = document.getElementById('theme-toggle');
@@ -306,7 +304,7 @@
 
         const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
 
-        // --- LÓGICA DE PROGRAMAS ---
+        // --- PROGRAMAS ---
         function agregarPrograma(e) {
             e.preventDefault();
             const nombre = document.getElementById('prog-nombre').value;
@@ -325,11 +323,11 @@
             const tbody = document.getElementById('lista-programas');
             tbody.innerHTML = '';
             programas.forEach(prog => {
-                tbody.innerHTML += `<tr><td>${prog.nombre}</td><td>$${prog.monto.toLocaleString('es-CL')}</td><td><button class="btn-delete" style="height:auto; padding:0.5rem 1rem;" onclick="eliminarPrograma('${prog.id}')">Eliminar</button></td></tr>`;
+                tbody.innerHTML += `<tr><td>${prog.nombre}</td><td>$${prog.monto.toLocaleString('es-CL')}</td><td><button type="button" class="btn-delete" style="height:auto; padding:0.5rem 1rem;" onclick="eliminarPrograma('${prog.id}')">Eliminar</button></td></tr>`;
             });
         }
 
-        // --- LÓGICA DE TRABAJADORES Y ASISTENCIAS ---
+        // --- TRABAJADORES ---
         function agregarTrabajador(e) {
             e.preventDefault();
             const nombre = document.getElementById('trab-nombre').value;
@@ -351,10 +349,30 @@
         function eliminarTrabajador(id) {
             const trabajador = trabajadores.find(t => t.id === id);
             if (!trabajador) return;
-            if (confirm(`⚠️ ¿Estás COMPLETAMENTE seguro de eliminar a ${trabajador.nombre}?\n\nAl hacer esto, se borrarán TODOS sus pagos pendientes y todo su historial de la pestaña de contabilidad. ¡Esta acción no se puede deshacer!`)) {
+            if (confirm(`⚠️ ¿Estás COMPLETAMENTE seguro de eliminar a ${trabajador.nombre}?\n\nAl hacer esto, se borrarán TODOS sus pagos pendientes y el historial. ¡Esta acción no se puede deshacer!`)) {
                 trabajadores = trabajadores.filter(t => t.id !== id);
                 guardarDatos();
             }
+        }
+
+        // --- ACORDEÓN MEJORADO ---
+        function toggleDetalles(id) {
+            const panel = document.getElementById('detalles-' + id);
+            const flecha = document.getElementById('flecha-' + id);
+            if (!panel || !flecha) return;
+            
+            if (panel.style.display === 'none' || panel.style.display === '') {
+                panel.style.display = 'block';
+                flecha.innerText = '▼';
+            } else {
+                panel.style.display = 'none';
+                flecha.innerText = '▶';
+            }
+        }
+
+        // EVITAR QUE LOS BOTONES CIERREN EL ACORDEÓN
+        function detenerClic(event) {
+            event.stopPropagation();
         }
 
         function toggleExtraFields(checkbox) {
@@ -363,13 +381,11 @@
             else { extraContainer.classList.remove('active'); extraContainer.querySelector('.asis-monto-extra').value = ''; extraContainer.querySelector('.asis-detalle-extra').value = ''; }
         }
 
-        // NUEVO: PREPARAR EDICIÓN DE JORNADA
         function prepararEdicionAsistencia(trabajadorId, asistenciaId) {
             const trabajador = trabajadores.find(t => t.id === trabajadorId);
             const asis = trabajador.asistencias.find(a => a.id === asistenciaId);
             if (!asis) return;
 
-            // Asegurar que el panel esté abierto
             const panel = document.getElementById('detalles-' + trabajadorId);
             const flecha = document.getElementById('flecha-' + trabajadorId);
             if (panel.style.display === 'none') {
@@ -378,28 +394,18 @@
             }
 
             const form = document.getElementById('form-asis-' + trabajadorId);
-            
-            // Marcar el formulario en "Modo Edición" guardando el ID
             form.dataset.editId = asistenciaId;
-
-            // Rellenar campos básicos
             form.querySelector('.asis-fecha').value = asis.fecha || '';
             form.querySelector('.asis-dianombre').value = asis.diaNombre || '';
             
-            // Buscar y seleccionar el programa
             let progId = asis.programaId;
-            if (!progId) { // Compatibilidad con datos antiguos
-                const prog = programas.find(p => p.nombre === asis.programaNombre);
-                if (prog) progId = prog.id;
-            }
+            if (!progId) { const prog = programas.find(p => p.nombre === asis.programaNombre); if (prog) progId = prog.id; }
             form.querySelector('.asis-programa').value = progId || '';
 
-            // Rellenar adicionales
             form.querySelector('.asis-noalmuerzo').checked = asis.noAlmuerzo || false;
             form.querySelector('.asis-invitados').value = asis.cantInvitados || 0;
             form.querySelector('.asis-horas-extra').value = asis.horasExtra || 0;
 
-            // Rellenar bono extra
             if (asis.montoExtraManual > 0) {
                 form.querySelector('.asis-toggle-extra').checked = true;
                 toggleExtraFields(form.querySelector('.asis-toggle-extra'));
@@ -412,10 +418,9 @@
                 form.querySelector('.asis-detalle-extra').value = '';
             }
 
-            // Cambiar botones
             const btnSubmit = form.querySelector('.btn-submit-asis');
             btnSubmit.innerText = "💾 Guardar Cambios de Jornada";
-            btnSubmit.style.backgroundColor = "#f59e0b"; // Naranja
+            btnSubmit.style.backgroundColor = "#f59e0b"; 
 
             let btnCancel = form.querySelector('.btn-cancel');
             if (!btnCancel) {
@@ -426,21 +431,16 @@
                 btnCancel.onclick = () => cancelarEdicionAsistencia(trabajadorId);
                 form.appendChild(btnCancel);
             }
-
-            // Scroll suave hacia el formulario
             form.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         function cancelarEdicionAsistencia(trabajadorId) {
             const form = document.getElementById('form-asis-' + trabajadorId);
-            delete form.dataset.editId; // Quitar modo edición
+            delete form.dataset.editId; 
             form.reset();
-            
-            // Ocultar campo extra
             form.querySelector('.asis-toggle-extra').checked = false;
             toggleExtraFields(form.querySelector('.asis-toggle-extra'));
 
-            // Restaurar botones
             const btnSubmit = form.querySelector('.btn-submit-asis');
             btnSubmit.innerText = "Cerrar y Agregar Jornada";
             btnSubmit.style.backgroundColor = "var(--primary)";
@@ -456,12 +456,10 @@
             const fecha = form.querySelector('.asis-fecha').value;
             const programaId = form.querySelector('.asis-programa').value;
             
-            // Adicionales
             const noAlmuerzo = form.querySelector('.asis-noalmuerzo').checked;
             const cantInvitados = parseInt(form.querySelector('.asis-invitados').value) || 0;
             const horasExtra = parseInt(form.querySelector('.asis-horas-extra').value) || 0;
             
-            // Pago extra variable
             const hayExtra = form.querySelector('.asis-toggle-extra').checked;
             const montoExtra = hayExtra ? (parseFloat(form.querySelector('.asis-monto-extra').value) || 0) : 0;
             const detalleExtra = hayExtra ? form.querySelector('.asis-detalle-extra').value : "";
@@ -470,58 +468,40 @@
             if (!programa) return alert("Selecciona un programa válido");
 
             const trabajador = trabajadores.find(t => t.id === trabajadorId);
+            let montoExtras = 0; let desgloseExtras = [];
             
-            let montoExtras = 0; 
-            let desgloseExtras = [];
-            
-            if (noAlmuerzo) { 
-                montoExtras += 5000; 
-                desgloseExtras.push("Sin almuerzo (+$5.000)"); 
-            }
-            if (cantInvitados > 0) { 
-                const totInv = cantInvitados * 1000; 
-                montoExtras += totInv; 
-                desgloseExtras.push(`${cantInvitados} Invitado(s) (+$${totInv.toLocaleString('es-CL')})`); 
-            }
+            if (noAlmuerzo) { montoExtras += 5000; desgloseExtras.push("Sin almuerzo (+$5.000)"); }
+            if (cantInvitados > 0) { const totInv = cantInvitados * 1000; montoExtras += totInv; desgloseExtras.push(`${cantInvitados} Invitado(s) (+$${totInv.toLocaleString('es-CL')})`); }
             if (horasExtra > 0) {
                 const horasValidas = Math.min(horasExtra, 5);
                 const totHoras = horasValidas * 3000;
                 montoExtras += totHoras;
                 desgloseExtras.push(`${horasValidas} Hora(s) extra (+$${totHoras.toLocaleString('es-CL')})`);
             }
-            if (montoExtra > 0) { 
-                montoExtras += montoExtra; 
-                desgloseExtras.push(`${detalleExtra || 'Bono extra'} (+$${montoExtra.toLocaleString('es-CL')})`); 
-            }
+            if (montoExtra > 0) { montoExtras += montoExtra; desgloseExtras.push(`${detalleExtra || 'Bono extra'} (+$${montoExtra.toLocaleString('es-CL')})`); }
 
             const totalDia = programa.monto + montoExtras;
-
             const editId = form.dataset.editId;
-
             const nuevaJornada = {
                 id: editId ? editId : generateId(), 
                 diaNombre, fecha, programaNombre: programa.nombre, programaId: programa.id,
                 montoBase: programa.monto, montoExtras: montoExtras, detalleExtras: desgloseExtras.join(' | '), 
                 totalDia: totalDia, montoCobrado: totalDia,
-                // Guardamos los datos puros para poder re-editar después
                 noAlmuerzo, cantInvitados, horasExtra, montoExtraManual: montoExtra, detalleExtraManual: detalleExtra
             };
 
             if (!trabajador.asistencias) trabajador.asistencias = [];
 
             if (editId) {
-                // Si estamos editando, reemplazamos la existente
                 const index = trabajador.asistencias.findIndex(a => a.id === editId);
                 if (index !== -1) trabajador.asistencias[index] = nuevaJornada;
-                cancelarEdicionAsistencia(trabajadorId); // Limpia el form y botones
+                cancelarEdicionAsistencia(trabajadorId); 
             } else {
-                // Si es nueva, la agregamos al final
                 trabajador.asistencias.push(nuevaJornada);
                 form.reset();
                 form.querySelector('.asis-toggle-extra').checked = false;
                 toggleExtraFields(form.querySelector('.asis-toggle-extra'));
             }
-
             guardarDatos();
         }
 
@@ -533,7 +513,6 @@
             }
         }
 
-        // --- SISTEMA DE PAGO Y GENERACIÓN DE TXT ---
         function realizarPagoTrabajador(trabajadorId) {
             const trabajador = trabajadores.find(t => t.id === trabajadorId);
             if (!trabajador || !trabajador.asistencias || trabajador.asistencias.length === 0) return alert("No hay montos pendientes por pagar.");
@@ -542,23 +521,14 @@
 
             if (confirm(`¿Confirmas que ya realizaste el depósito de $${totalAPagar.toLocaleString('es-CL')} a ${trabajador.nombre}?\n\nAl confirmar, se guardará en contabilidad y se descargará el detalle TXT.`)) {
                 if (!trabajador.historialPagos) trabajador.historialPagos = [];
-                
-                // Formato de fecha actual
                 const hoy = new Date();
                 const fechaFormat = `${hoy.getDate().toString().padStart(2, '0')}/${(hoy.getMonth() + 1).toString().padStart(2, '0')}/${hoy.getFullYear()}`;
                 
-                const nuevoPago = { 
-                    id: generateId(), 
-                    fechaPago: fechaFormat, 
-                    totalPagado: totalAPagar, 
-                    jornadas: [...trabajador.asistencias] 
-                };
-
+                const nuevoPago = { id: generateId(), fechaPago: fechaFormat, totalPagado: totalAPagar, jornadas: [...trabajador.asistencias] };
                 trabajador.historialPagos.unshift(nuevoPago);
                 trabajador.asistencias = [];
                 guardarDatos();
 
-                // Generar auto-descarga del TXT
                 const pagoStr = encodeURIComponent(JSON.stringify(nuevoPago));
                 descargarComprobante(trabajador.nombre, pagoStr);
             }
@@ -566,33 +536,16 @@
 
         function descargarComprobante(trabajadorNombre, pagoString) {
             const pago = JSON.parse(decodeURIComponent(pagoString));
-            
-            let contenido = `====================================\n`;
-            contenido += `  COMPROBANTE DE PAGO - NAT PRODUCCIONES\n`;
-            contenido += `====================================\n\n`;
-            contenido += `Trabajador: ${trabajadorNombre}\n`;
-            contenido += `Fecha de Pago: ${pago.fechaPago}\n`;
-            contenido += `Total Pagado: $${pago.totalPagado.toLocaleString('es-CL')}\n\n`;
-            contenido += `--- DETALLE DE JORNADAS ---\n`;
-            
+            let contenido = `====================================\n  COMPROBANTE DE PAGO - NAT PRODUCCIONES\n====================================\n\nTrabajador: ${trabajadorNombre}\nFecha de Pago: ${pago.fechaPago}\nTotal Pagado: $${pago.totalPagado.toLocaleString('es-CL')}\n\n--- DETALLE DE JORNADAS ---\n`;
             pago.jornadas.forEach(j => {
                 const subtotal = j.totalDia !== undefined ? j.totalDia : j.montoCobrado;
                 const base = j.montoBase !== undefined ? j.montoBase : subtotal;
-                
-                contenido += `\n> ${j.fecha} (${j.diaNombre})\n`;
-                contenido += `  Programa: ${j.programaNombre}\n`;
-                contenido += `  Monto Base: $${base.toLocaleString('es-CL')}\n`;
-                
-                if (j.montoExtras > 0) {
-                    contenido += `  Adicionales: $${j.montoExtras.toLocaleString('es-CL')} (${j.detalleExtras})\n`;
-                }
+                contenido += `\n> ${j.fecha} (${j.diaNombre})\n  Programa: ${j.programaNombre}\n  Monto Base: $${base.toLocaleString('es-CL')}\n`;
+                if (j.montoExtras > 0) { contenido += `  Adicionales: $${j.montoExtras.toLocaleString('es-CL')} (${j.detalleExtras})\n`; }
                 contenido += `  Subtotal Jornada: $${subtotal.toLocaleString('es-CL')}\n`;
             });
-            
-            contenido += `\n====================================\n`;
-            contenido += `Documento generado automáticamente.`;
+            contenido += `\n====================================\nDocumento generado automáticamente.`;
 
-            // Crear archivo TXT y forzar descarga
             const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -600,19 +553,6 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        }
-
-        // --- SISTEMA DE ACORDEÓN ---
-        function toggleDetalles(id) {
-            const panel = document.getElementById('detalles-' + id);
-            const flecha = document.getElementById('flecha-' + id);
-            if (panel.style.display === 'none' || panel.style.display === '') {
-                panel.style.display = 'block';
-                flecha.innerText = '▼';
-            } else {
-                panel.style.display = 'none';
-                flecha.innerText = '▶';
-            }
         }
 
         function renderizarTrabajadores() {
@@ -637,33 +577,43 @@
                                 <td>$${(asis.montoExtras || 0).toLocaleString('es-CL')}<span class="text-sm">${strExtras}</span></td>
                                 <td class="monto-total-td">$${totalD.toLocaleString('es-CL')}</td>
                                 <td style="white-space: nowrap;">
-                                    <button class="btn-small-outline" style="padding: 0.25rem 0.5rem; height: auto; margin-right: 0.25rem;" onclick="prepararEdicionAsistencia('${trab.id}', '${asis.id}')">✏️</button>
-                                    <button class="btn-delete" style="padding: 0.25rem 0.5rem; height: auto;" onclick="eliminarAsistencia('${trab.id}', '${asis.id}')">X</button>
+                                    <button type="button" class="btn-small-outline" style="padding: 0.4rem; height: auto; margin-right: 0.25rem;" onclick="prepararEdicionAsistencia('${trab.id}', '${asis.id}')">✏️</button>
+                                    <button type="button" class="btn-delete" style="padding: 0.4rem 0.6rem; height: auto;" onclick="eliminarAsistencia('${trab.id}', '${asis.id}')">X</button>
                                 </td>
                             </tr>`;
                 }).join('');
 
-                if (trab.asistencias.length === 0) filasAsistencias = `<tr><td colspan="6" style="text-align:center; color: var(--text-light);">No hay asistencias pendientes por pagar.</td></tr>`;
+                if (trab.asistencias.length === 0) filasAsistencias = `<tr><td colspan="6" style="text-align:center; color: var(--text-light); padding: 2rem;">No hay asistencias pendientes registradas.</td></tr>`;
 
                 contenedor.innerHTML += `
-                    <div class="card">
-                        <!-- ENCABEZADO SIEMPRE VISIBLE -->
-                        <div class="worker-header">
-                            <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-                                <button onclick="toggleDetalles('${trab.id}')" class="toggle-btn">
+                    <div class="card" style="padding: 0;">
+                        <!-- ENCABEZADO ENCUADRADO (Clickeable completo) -->
+                        <div class="worker-box-header" onclick="toggleDetalles('${trab.id}')">
+                            
+                            <div class="worker-title-row">
+                                <div class="worker-name">
                                     <span id="flecha-${trab.id}">▶</span> ${trab.nombre}
+                                </div>
+                                <div class="worker-total-badge">
+                                    Pendiente: $${totalMonto.toLocaleString('es-CL')}
+                                </div>
+                            </div>
+
+                            <!-- FILA DE BOTONES (Se usa stopPropagation para no abrir/cerrar al hacer clic en los botones) -->
+                            <div class="worker-actions-row" onclick="detenerClic(event)">
+                                <div class="action-group-left">
+                                    <button type="button" onclick="editarTrabajador('${trab.id}')" class="btn-small-outline">✏️ Editar Nombre</button>
+                                    <button type="button" onclick="eliminarTrabajador('${trab.id}')" class="btn-small-delete">🗑️ Eliminar Trabajador</button>
+                                </div>
+                                <button type="button" class="btn-pay" style="padding: 0.5rem 1.2rem;" onclick="realizarPagoTrabajador('${trab.id}')">
+                                    ✓ Confirmar Pago y Generar TXT
                                 </button>
-                                <button onclick="editarTrabajador('${trab.id}')" class="btn-small-outline">✏️ Editar Nombre</button>
-                                <button onclick="eliminarTrabajador('${trab.id}')" class="btn-small-delete">🗑️ Eliminar Trabajador</button>
                             </div>
-                            <div class="worker-actions">
-                                <div class="worker-total">Pendiente: $${totalMonto.toLocaleString('es-CL')}</div>
-                                <button class="btn-pay" onclick="realizarPagoTrabajador('${trab.id}')">✓ Confirmar Pago y Generar TXT</button>
-                            </div>
+                            
                         </div>
                         
-                        <!-- CONTENIDO DESPLEGABLE (OCULTO POR DEFECTO) -->
-                        <div id="detalles-${trab.id}" style="display: none; padding-top: 1rem; border-top: 1px dashed var(--border);">
+                        <!-- CONTENIDO DESPLEGABLE (Jornadas) -->
+                        <div id="detalles-${trab.id}" style="display: none; padding: 1.5rem; background-color: var(--card-bg); border-top: 2px solid var(--primary);">
                             <form id="form-asis-${trab.id}" class="attendance-form" onsubmit="agregarAsistencia(event, '${trab.id}')">
                                 <h3 class="section-title">1. Datos de la jornada</h3>
                                 <div class="form-grid">
@@ -691,7 +641,7 @@
                                 <button type="submit" class="btn-full btn-submit-asis">Cerrar y Agregar Jornada</button>
                             </form>
                             
-                            <h3>Jornadas Pendientes por Pagar</h3>
+                            <h3 class="section-title" style="margin-top: 2rem;">Jornadas Pendientes por Pagar</h3>
                             <div class="table-responsive">
                                 <table>
                                     <thead><tr><th>Fecha y Día</th><th>Programa</th><th>Monto Base</th><th>Extras</th><th>Total Día</th><th>Acción</th></tr></thead>
@@ -710,20 +660,15 @@
             let todosLosPagos = [];
             let granTotal = 0;
 
-            // Recolectar todos los pagos de todos los trabajadores
             trabajadores.forEach(trab => {
                 if(trab.historialPagos) {
                     trab.historialPagos.forEach(pago => {
-                        todosLosPagos.push({
-                            ...pago,
-                            trabajadorNombre: trab.nombre,
-                        });
+                        todosLosPagos.push({ ...pago, trabajadorNombre: trab.nombre });
                         granTotal += pago.totalPagado;
                     });
                 }
             });
 
-            // Actualizar el gran total
             document.getElementById('resumen-total-pagos').innerText = `Total Histórico Invertido: $${granTotal.toLocaleString('es-CL')}`;
 
             if (todosLosPagos.length === 0) {
@@ -731,10 +676,8 @@
                 return;
             }
 
-            // Generar las tarjetas de historial global
             contenedor.innerHTML = todosLosPagos.map(pago => {
                 const pagoStr = encodeURIComponent(JSON.stringify(pago));
-                
                 let detalleJornadasHTML = pago.jornadas.map(j => {
                     const subtotal = j.totalDia !== undefined ? j.totalDia : j.montoCobrado;
                     return `• ${j.fecha} - ${j.programaNombre} <span style="font-weight:600;">($${subtotal.toLocaleString('es-CL')})</span>`;
@@ -749,7 +692,7 @@
                         </div>
                         <div style="display:flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
                             <span style="color:var(--success); font-weight: bold; font-size: 1.2rem;">$${pago.totalPagado.toLocaleString('es-CL')}</span>
-                            <button onclick="descargarComprobante('${pago.trabajadorNombre}', '${pagoStr}')" style="padding: 0.4rem 0.8rem; min-height: auto; font-size: 0.9rem; white-space: nowrap;">📄 Bajar Detalle TXT</button>
+                            <button type="button" onclick="descargarComprobante('${pago.trabajadorNombre}', '${pagoStr}')" class="btn-small-outline" style="white-space: nowrap;">📄 Bajar Detalle TXT</button>
                         </div>
                     </div>
                     <div class="text-sm" style="color: var(--text);">
