@@ -62,7 +62,8 @@
         .input-group { display: flex; flex-direction: column; }
         
         .checkbox-group { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; }
-        .checkbox-group input[type="checkbox"] { width: 1.2rem; height: 1.2rem; accent-color: var(--primary); }
+        .checkbox-group input[type="checkbox"] { width: 1.2rem; height: 1.2rem; accent-color: var(--primary); cursor: pointer; }
+        .checkbox-group label { cursor: pointer; }
 
         label { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-light); }
         input, select { padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; background-color: var(--card-bg); color: var(--text); }
@@ -370,7 +371,6 @@
             }
         }
 
-        // EVITAR QUE LOS BOTONES CIERREN EL ACORDEÓN
         function detenerClic(event) {
             event.stopPropagation();
         }
@@ -401,12 +401,14 @@
             let progId = asis.programaId;
             if (!progId) { const prog = programas.find(p => p.nombre === asis.programaNombre); if (prog) progId = prog.id; }
             form.querySelector('.asis-programa').value = progId || '';
+            
+            // Cargar estado de inasistencia (solo invitados)
+            const chkSolo = form.querySelector('.asis-solo-invitados');
+            if (chkSolo) chkSolo.checked = asis.soloInvitados || false;
 
             form.querySelector('.asis-noalmuerzo').checked = asis.noAlmuerzo || false;
             form.querySelector('.asis-invitados').value = asis.cantInvitados || 0;
             form.querySelector('.asis-horas-extra').value = asis.horasExtra || 0;
-            
-            // NUEVO: Movilización
             form.querySelector('.asis-movilizacion').value = asis.movilizacion || 0;
 
             if (asis.montoExtraManual > 0) {
@@ -459,11 +461,13 @@
             const fecha = form.querySelector('.asis-fecha').value;
             const programaId = form.querySelector('.asis-programa').value;
             
+            // Checkbox para cuando no asisten pero traen invitados
+            const chkSolo = form.querySelector('.asis-solo-invitados');
+            const soloInvitados = chkSolo ? chkSolo.checked : false;
+            
             const noAlmuerzo = form.querySelector('.asis-noalmuerzo').checked;
             const cantInvitados = parseInt(form.querySelector('.asis-invitados').value) || 0;
             const horasExtra = parseInt(form.querySelector('.asis-horas-extra').value) || 0;
-            
-            // NUEVO: Movilización
             const movilizacion = parseFloat(form.querySelector('.asis-movilizacion').value) || 0;
             
             const hayExtra = form.querySelector('.asis-toggle-extra').checked;
@@ -476,6 +480,10 @@
             const trabajador = trabajadores.find(t => t.id === trabajadorId);
             let montoExtras = 0; let desgloseExtras = [];
             
+            // Si el trabajador NO asistió, la base es 0
+            let montoBaseAplicado = soloInvitados ? 0 : programa.monto;
+
+            if (soloInvitados) { desgloseExtras.push("Inasistencia (Base $0)"); }
             if (noAlmuerzo) { montoExtras += 5000; desgloseExtras.push("Sin almuerzo (+$5.000)"); }
             if (cantInvitados > 0) { const totInv = cantInvitados * 1000; montoExtras += totInv; desgloseExtras.push(`${cantInvitados} Invitado(s) (+$${totInv.toLocaleString('es-CL')})`); }
             if (horasExtra > 0) {
@@ -490,14 +498,15 @@
             }
             if (montoExtra > 0) { montoExtras += montoExtra; desgloseExtras.push(`${detalleExtra || 'Bono extra'} (+$${montoExtra.toLocaleString('es-CL')})`); }
 
-            const totalDia = programa.monto + montoExtras;
+            const totalDia = montoBaseAplicado + montoExtras;
             const editId = form.dataset.editId;
             const nuevaJornada = {
                 id: editId ? editId : generateId(), 
                 diaNombre, fecha, programaNombre: programa.nombre, programaId: programa.id,
-                montoBase: programa.monto, montoExtras: montoExtras, detalleExtras: desgloseExtras.join(' | '), 
+                montoBase: montoBaseAplicado, montoExtras: montoExtras, detalleExtras: desgloseExtras.join(' | '), 
                 totalDia: totalDia, montoCobrado: totalDia,
-                noAlmuerzo, cantInvitados, horasExtra, movilizacion, montoExtraManual: montoExtra, detalleExtraManual: detalleExtra
+                noAlmuerzo, cantInvitados, horasExtra, movilizacion, montoExtraManual: montoExtra, detalleExtraManual: detalleExtra,
+                soloInvitados: soloInvitados
             };
 
             if (!trabajador.asistencias) trabajador.asistencias = [];
@@ -632,6 +641,11 @@
                                     <div class="input-group">
                                         <label>Programa Asistido</label>
                                         <select class="asis-programa" required><option value="">Seleccione un programa...</option>${opcionesProgramas}</select>
+                                    </div>
+                                    <!-- NUEVA CASILLA PARA INASISTENCIA CON INVITADOS -->
+                                    <div class="checkbox-group" style="grid-column: 1 / -1; margin-top: 0.5rem;">
+                                        <input type="checkbox" id="solo-inv-${trab.id}" class="asis-solo-invitados">
+                                        <label for="solo-inv-${trab.id}" style="color: #ef4444; font-weight: bold;">🚨 El trabajador NO asistió (Cobrar $0 de base, solo pagar invitados/extras)</label>
                                     </div>
                                 </div>
                                 <h3 class="section-title">2. Adicionales</h3>
