@@ -266,16 +266,38 @@
             }
         });
 
+        // ==========================================
+        //  EL "ESCUDO ANTIBALAS" DE DATOS (NUEVO)
+        // ==========================================
         function iniciarBaseDeDatos() {
             db.ref('sistema-pagos').on('value', (snapshot) => {
-                const data = snapshot.val() || { programas: [], trabajadores: [] };
-                programas = data.programas || [];
-                trabajadores = data.trabajadores || [];
+                const data = snapshot.val() || {};
+                
+                // 1. Limpiamos y convertimos los programas (evita choques si eliminaste uno)
+                programas = data.programas ? Object.values(data.programas).filter(p => p != null) : [];
+                
+                // 2. Limpiamos y convertimos a los trabajadores y sus listas internas
+                let trabsBrutos = data.trabajadores ? Object.values(data.trabajadores).filter(t => t != null) : [];
+                
+                trabajadores = trabsBrutos.map(trab => {
+                    return {
+                        ...trab,
+                        // Limpiamos las jornadas
+                        asistencias: trab.asistencias ? Object.values(trab.asistencias).filter(a => a != null) : [],
+                        // Limpiamos el historial global
+                        historialPagos: trab.historialPagos ? Object.values(trab.historialPagos).filter(p => p != null).map(p => ({
+                            ...p,
+                            jornadas: p.jornadas ? Object.values(p.jornadas).filter(j => j != null) : []
+                        })) : []
+                    };
+                });
+
                 renderizarProgramas();
                 renderizarTrabajadores();
                 renderizarPagosGlobales();
             });
         }
+        // ==========================================
 
         function guardarDatos() {
             db.ref('sistema-pagos').set({ programas: programas, trabajadores: trabajadores });
@@ -402,7 +424,6 @@
             if (!progId) { const prog = programas.find(p => p.nombre === asis.programaNombre); if (prog) progId = prog.id; }
             form.querySelector('.asis-programa').value = progId || '';
             
-            // Cargar estado de inasistencia (solo invitados)
             const chkSolo = form.querySelector('.asis-solo-invitados');
             if (chkSolo) chkSolo.checked = asis.soloInvitados || false;
 
@@ -461,7 +482,6 @@
             const fecha = form.querySelector('.asis-fecha').value;
             const programaId = form.querySelector('.asis-programa').value;
             
-            // Checkbox para cuando no asisten pero traen invitados
             const chkSolo = form.querySelector('.asis-solo-invitados');
             const soloInvitados = chkSolo ? chkSolo.checked : false;
             
@@ -480,7 +500,6 @@
             const trabajador = trabajadores.find(t => t.id === trabajadorId);
             let montoExtras = 0; let desgloseExtras = [];
             
-            // Si el trabajador NO asistió, la base es 0
             let montoBaseAplicado = soloInvitados ? 0 : programa.monto;
 
             if (soloInvitados) { desgloseExtras.push("Inasistencia (Base $0)"); }
@@ -606,32 +625,20 @@
 
                 contenedor.innerHTML += `
                     <div class="card" style="padding: 0;">
-                        <!-- ENCABEZADO ENCUADRADO (Clickeable completo) -->
                         <div class="worker-box-header" onclick="toggleDetalles('${trab.id}')">
-                            
                             <div class="worker-title-row">
-                                <div class="worker-name">
-                                    <span id="flecha-${trab.id}">▶</span> ${trab.nombre}
-                                </div>
-                                <div class="worker-total-badge">
-                                    Pendiente: $${totalMonto.toLocaleString('es-CL')}
-                                </div>
+                                <div class="worker-name"><span id="flecha-${trab.id}">▶</span> ${trab.nombre}</div>
+                                <div class="worker-total-badge">Pendiente: $${totalMonto.toLocaleString('es-CL')}</div>
                             </div>
-
-                            <!-- FILA DE BOTONES (Se usa stopPropagation para no abrir/cerrar al hacer clic en los botones) -->
                             <div class="worker-actions-row" onclick="detenerClic(event)">
                                 <div class="action-group-left">
                                     <button type="button" onclick="editarTrabajador('${trab.id}')" class="btn-small-outline">✏️ Editar Nombre</button>
                                     <button type="button" onclick="eliminarTrabajador('${trab.id}')" class="btn-small-delete">🗑️ Eliminar Trabajador</button>
                                 </div>
-                                <button type="button" class="btn-pay" style="padding: 0.5rem 1.2rem;" onclick="realizarPagoTrabajador('${trab.id}')">
-                                    ✓ Confirmar Pago y Generar TXT
-                                </button>
+                                <button type="button" class="btn-pay" style="padding: 0.5rem 1.2rem;" onclick="realizarPagoTrabajador('${trab.id}')">✓ Confirmar Pago y Generar TXT</button>
                             </div>
-                            
                         </div>
                         
-                        <!-- CONTENIDO DESPLEGABLE (Jornadas) -->
                         <div id="detalles-${trab.id}" style="display: none; padding: 1.5rem; background-color: var(--card-bg); border-top: 2px solid var(--primary);">
                             <form id="form-asis-${trab.id}" class="attendance-form" onsubmit="agregarAsistencia(event, '${trab.id}')">
                                 <h3 class="section-title">1. Datos de la jornada</h3>
@@ -642,7 +649,6 @@
                                         <label>Programa Asistido</label>
                                         <select class="asis-programa" required><option value="">Seleccione un programa...</option>${opcionesProgramas}</select>
                                     </div>
-                                    <!-- NUEVA CASILLA PARA INASISTENCIA CON INVITADOS -->
                                     <div class="checkbox-group" style="grid-column: 1 / -1; margin-top: 0.5rem;">
                                         <input type="checkbox" id="solo-inv-${trab.id}" class="asis-solo-invitados">
                                         <label for="solo-inv-${trab.id}" style="color: #ef4444; font-weight: bold;">🚨 El trabajador NO asistió (Cobrar $0 de base, solo pagar invitados/extras)</label>
