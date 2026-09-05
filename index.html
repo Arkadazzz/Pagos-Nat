@@ -71,7 +71,6 @@
         button.btn-delete { background-color: #ef4444; }
         button.btn-pay { background-color: #10b981; }
         
-        /* Estilos botones pequeños */
         .btn-small-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 0.4rem 0.8rem; height: auto; min-height: 0; font-size: 0.9rem; border-radius: 4px; font-weight: 600; }
         .btn-small-outline:hover { background: var(--primary); color: white; }
         .btn-small-delete { background: #ef4444; color: white; padding: 0.4rem 0.8rem; height: auto; min-height: 0; font-size: 0.9rem; border-radius: 4px; border: none; font-weight: 600; }
@@ -81,7 +80,6 @@
         .btn-cancel { width: 100%; margin-top: 0.5rem; background-color: #6b7280; }
         .btn-cancel:hover { background-color: #4b5563; }
 
-        /* Contenedor de tablas */
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 1rem; border: 1px solid var(--border); border-radius: 6px; }
         table { width: 100%; border-collapse: collapse; min-width: 700px; }
         th, td { text-align: left; padding: 1rem; border-bottom: 1px solid var(--border); }
@@ -89,7 +87,6 @@
         .text-sm { font-size: 0.85rem; color: var(--text-light); display: block; line-height: 1.4; }
         .monto-total-td { font-weight: bold; color: var(--success); }
 
-        /* Estilos específicos del bloque de trabajador encuadrado */
         .worker-box-header { padding: 1.5rem; background-color: var(--form-bg); cursor: pointer; user-select: none; transition: background-color 0.2s; }
         .worker-box-header:hover { background-color: var(--border); }
         .worker-title-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
@@ -106,7 +103,6 @@
 
         .history-card { background-color: var(--form-bg); padding: 1.25rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--border); }
 
-        /* Estilos Pantalla Login */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 1rem; box-sizing: border-box; }
         .login-box { background: var(--card-bg); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
         .login-box img { max-height: 80px; margin-bottom: 1.5rem; }
@@ -266,25 +262,18 @@
             }
         });
 
-        // ==========================================
-        //  EL "ESCUDO ANTIBALAS" DE DATOS (NUEVO)
-        // ==========================================
         function iniciarBaseDeDatos() {
             db.ref('sistema-pagos').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 
-                // 1. Limpiamos y convertimos los programas (evita choques si eliminaste uno)
                 programas = data.programas ? Object.values(data.programas).filter(p => p != null) : [];
                 
-                // 2. Limpiamos y convertimos a los trabajadores y sus listas internas
                 let trabsBrutos = data.trabajadores ? Object.values(data.trabajadores).filter(t => t != null) : [];
                 
                 trabajadores = trabsBrutos.map(trab => {
                     return {
                         ...trab,
-                        // Limpiamos las jornadas
                         asistencias: trab.asistencias ? Object.values(trab.asistencias).filter(a => a != null) : [],
-                        // Limpiamos el historial global
                         historialPagos: trab.historialPagos ? Object.values(trab.historialPagos).filter(p => p != null).map(p => ({
                             ...p,
                             jornadas: p.jornadas ? Object.values(p.jornadas).filter(j => j != null) : []
@@ -297,7 +286,6 @@
                 renderizarPagosGlobales();
             });
         }
-        // ==========================================
 
         function guardarDatos() {
             db.ref('sistema-pagos').set({ programas: programas, trabajadores: trabajadores });
@@ -327,7 +315,6 @@
 
         const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
 
-        // --- PROGRAMAS ---
         function agregarPrograma(e) {
             e.preventDefault();
             const nombre = document.getElementById('prog-nombre').value;
@@ -350,7 +337,6 @@
             });
         }
 
-        // --- TRABAJADORES ---
         function agregarTrabajador(e) {
             e.preventDefault();
             const nombre = document.getElementById('trab-nombre').value;
@@ -378,7 +364,6 @@
             }
         }
 
-        // --- ACORDEÓN MEJORADO ---
         function toggleDetalles(id) {
             const panel = document.getElementById('detalles-' + id);
             const flecha = document.getElementById('flecha-' + id);
@@ -429,7 +414,11 @@
 
             form.querySelector('.asis-noalmuerzo').checked = asis.noAlmuerzo || false;
             form.querySelector('.asis-invitados').value = asis.cantInvitados || 0;
+            
             form.querySelector('.asis-horas-extra').value = asis.horasExtra || 0;
+            const inputValorHora = form.querySelector('.asis-valor-hora');
+            if (inputValorHora) inputValorHora.value = asis.valorHoraExtra || 0;
+
             form.querySelector('.asis-movilizacion').value = asis.movilizacion || 0;
 
             if (asis.montoExtraManual > 0) {
@@ -487,7 +476,11 @@
             
             const noAlmuerzo = form.querySelector('.asis-noalmuerzo').checked;
             const cantInvitados = parseInt(form.querySelector('.asis-invitados').value) || 0;
-            const horasExtra = parseInt(form.querySelector('.asis-horas-extra').value) || 0;
+            
+            const horasExtra = parseFloat(form.querySelector('.asis-horas-extra').value) || 0;
+            const inputValorHora = form.querySelector('.asis-valor-hora');
+            const valorHoraExtra = inputValorHora ? (parseFloat(inputValorHora.value) || 0) : 0;
+            
             const movilizacion = parseFloat(form.querySelector('.asis-movilizacion').value) || 0;
             
             const hayExtra = form.querySelector('.asis-toggle-extra').checked;
@@ -505,12 +498,15 @@
             if (soloInvitados) { desgloseExtras.push("Inasistencia (Base $0)"); }
             if (noAlmuerzo) { montoExtras += 5000; desgloseExtras.push("Sin almuerzo (+$5.000)"); }
             if (cantInvitados > 0) { const totInv = cantInvitados * 1000; montoExtras += totInv; desgloseExtras.push(`${cantInvitados} Invitado(s) (+$${totInv.toLocaleString('es-CL')})`); }
+            
+            // LÓGICA DE HORAS EXTRA DINÁMICA
             if (horasExtra > 0) {
-                const horasValidas = Math.min(horasExtra, 5);
-                const totHoras = horasValidas * 3000;
+                const valorAUsar = valorHoraExtra > 0 ? valorHoraExtra : 3000; // Por defecto $3.000 si se les olvida llenarlo
+                const totHoras = horasExtra * valorAUsar;
                 montoExtras += totHoras;
-                desgloseExtras.push(`${horasValidas} Hora(s) extra (+$${totHoras.toLocaleString('es-CL')})`);
+                desgloseExtras.push(`${horasExtra} Hora(s) extra (+$${totHoras.toLocaleString('es-CL')})`);
             }
+
             if (movilizacion > 0) { 
                 montoExtras += movilizacion; 
                 desgloseExtras.push(`Movilización/Uber (+$${movilizacion.toLocaleString('es-CL')})`); 
@@ -524,7 +520,7 @@
                 diaNombre, fecha, programaNombre: programa.nombre, programaId: programa.id,
                 montoBase: montoBaseAplicado, montoExtras: montoExtras, detalleExtras: desgloseExtras.join(' | '), 
                 totalDia: totalDia, montoCobrado: totalDia,
-                noAlmuerzo, cantInvitados, horasExtra, movilizacion, montoExtraManual: montoExtra, detalleExtraManual: detalleExtra,
+                noAlmuerzo, cantInvitados, horasExtra, valorHoraExtra, movilizacion, montoExtraManual: montoExtra, detalleExtraManual: detalleExtra,
                 soloInvitados: soloInvitados
             };
 
@@ -651,15 +647,18 @@
                                     </div>
                                     <div class="checkbox-group" style="grid-column: 1 / -1; margin-top: 0.5rem;">
                                         <input type="checkbox" id="solo-inv-${trab.id}" class="asis-solo-invitados">
-                                        <label for="solo-inv-${trab.id}" style="color: #ef4444; font-weight: bold;">🚨 El trabajador NO asistió (Cobrar $0 de base, solo pagar invitados/extras)</label>
+                                        <label for="solo-inv-${trab.id}" style="color: #ef4444; font-weight: bold;">🚨 El trabajador NO asistió (Cobrar $0 de base, solo pagar extras)</label>
                                     </div>
                                 </div>
                                 <h3 class="section-title">2. Adicionales</h3>
                                 <div class="form-grid">
                                     <div class="checkbox-group"><input type="checkbox" id="almuerzo-${trab.id}" class="asis-noalmuerzo"><label for="almuerzo-${trab.id}">No almorzó (+$5.000)</label></div>
-                                    <div class="input-group"><label>Invitados (+$1.000 c/u)</label><input type="number" class="asis-invitados" min="0" value="0" style="max-width: 150px;"></div>
-                                    <div class="input-group"><label>Horas Extra (+$3.000, máx 5)</label><input type="number" class="asis-horas-extra" min="0" max="5" value="0" style="max-width: 150px;"></div>
-                                    <div class="input-group"><label>Movilización/Uber ($)</label><input type="number" class="asis-movilizacion" min="0" value="0" style="max-width: 150px;"></div>
+                                    <div class="input-group"><label>Invitados ($1.000 c/u)</label><input type="number" class="asis-invitados" min="0" value="0" style="max-width: 120px;"></div>
+                                    
+                                    <div class="input-group"><label>Cant. Horas Extra</label><input type="number" class="asis-horas-extra" min="0" step="0.5" value="0" style="max-width: 120px;"></div>
+                                    <div class="input-group"><label>Valor Hora ($)</label><input type="number" class="asis-valor-hora" min="0" value="0" style="max-width: 120px;"></div>
+                                    
+                                    <div class="input-group"><label>Movilización ($)</label><input type="number" class="asis-movilizacion" min="0" value="0" style="max-width: 120px;"></div>
                                 </div>
                                 <div class="checkbox-group" style="margin-top: 1rem;">
                                     <input type="checkbox" id="extra-${trab.id}" class="asis-toggle-extra" onchange="toggleExtraFields(this)">
@@ -685,7 +684,6 @@
             });
         }
 
-        // --- PESTAÑA DE CONTABILIDAD GLOBAL ---
         function renderizarPagosGlobales() {
             const contenedor = document.getElementById('lista-global-pagos');
             let todosLosPagos = [];
