@@ -103,6 +103,9 @@
 
         .history-card { background-color: var(--form-bg); padding: 1.25rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--border); }
 
+        .worker-daily-card { border: 1px solid var(--border); padding: 1rem; margin-bottom: 0.75rem; border-radius: 6px; background-color: var(--form-bg); transition: border-color 0.2s; }
+        .worker-daily-card:hover { border-color: var(--primary); }
+
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 1rem; box-sizing: border-box; }
         .login-box { background: var(--card-bg); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
         .login-box img { max-height: 80px; margin-bottom: 1.5rem; }
@@ -147,15 +150,68 @@
         </header>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('programas', this)">Programas y Tarifas</button>
+            <button class="tab-btn active" onclick="switchTab('registro-diario', this)">Registro Diario</button>
             <button class="tab-btn" onclick="switchTab('trabajadores', this)">Pagos Pendientes</button>
+            <button class="tab-btn" onclick="switchTab('programas', this)">Programas y Tarifas</button>
             <button class="tab-btn" onclick="switchTab('pagos-realizados', this)">Pagos Realizados</button>
         </div>
 
         <div class="container">
             
-            <!-- PESTAÑA 1: PROGRAMAS -->
-            <div id="programas" class="tab-content active">
+            <!-- PESTAÑA 1: REGISTRO DIARIO (NUEVA VISTA) -->
+            <div id="registro-diario" class="tab-content active">
+                <div class="card card-padding">
+                    <h2>Registrar Asistencia del Día</h2>
+                    <form id="form-diario" onsubmit="guardarAsistenciaDiaria(event)">
+                        
+                        <div class="form-grid" style="border-bottom: 2px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+                            <div class="input-group">
+                                <label>Fecha de la Jornada</label>
+                                <input type="date" id="diario-fecha" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Día (ej. Lunes)</label>
+                                <input type="text" id="diario-dianombre" placeholder="Lunes" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Programa Grabado</label>
+                                <select id="diario-programa" required>
+                                    <!-- Se llena con JS -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <h3 style="color: var(--primary);">2. Seleccionar Trabajadores que Asistieron</h3>
+                        <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 1rem;">Marca la casilla de quienes vinieron. Al marcar a alguien, podrás agregarle horas extras o bonos individuales si corresponde.</p>
+                        
+                        <div id="lista-diaria-trabajadores">
+                            <!-- Checkboxes y mini-formularios llenados con JS -->
+                        </div>
+
+                        <button type="submit" class="btn-full" style="margin-top: 2rem; font-size: 1.1rem;">Guardar Asistencia Masiva</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- PESTAÑA 2: TRABAJADORES Y PENDIENTES (MODO INDIVIDUAL Y GESTIÓN) -->
+            <div id="trabajadores" class="tab-content">
+                <div class="card card-padding">
+                    <h2>Registrar Nuevo Trabajador</h2>
+                    <form id="form-trabajador" class="form-grid" onsubmit="agregarTrabajador(event)">
+                        <div class="input-group">
+                            <label>Nombre del Trabajador</label>
+                            <input type="text" id="trab-nombre" required>
+                        </div>
+                        <button type="submit">Añadir Trabajador al Sistema</button>
+                    </form>
+                </div>
+                
+                <!-- LISTA DE TRABAJADORES ENCUADRADOS -->
+                <div id="lista-trabajadores"></div>
+            </div>
+
+            <!-- PESTAÑA 3: PROGRAMAS -->
+            <div id="programas" class="tab-content">
                 <div class="card card-padding">
                     <h2>Agregar Nuevo Programa/Serie</h2>
                     <form id="form-programa" class="form-grid" onsubmit="agregarPrograma(event)">
@@ -183,25 +239,7 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA 2: TRABAJADORES Y PENDIENTES -->
-            <div id="trabajadores" class="tab-content">
-                <div class="card card-padding">
-                    <h2>Registrar Nuevo Trabajador</h2>
-                    <form id="form-trabajador" class="form-grid" onsubmit="agregarTrabajador(event)">
-                        <div class="input-group">
-                            <label>Nombre del Trabajador</label>
-                            <input type="text" id="trab-nombre" required>
-                        </div>
-                        <button type="submit">Añadir Trabajador</button>
-                    </form>
-                </div>
-                
-                <!-- LISTA DE TRABAJADORES ENCUADRADOS -->
-                <div id="lista-trabajadores"></div>
-                
-            </div>
-
-            <!-- PESTAÑA 3: PAGOS REALIZADOS -->
+            <!-- PESTAÑA 4: PAGOS REALIZADOS -->
             <div id="pagos-realizados" class="tab-content">
                 <div class="card card-padding">
                     <h2>Contabilidad Global de Pagos</h2>
@@ -283,6 +321,7 @@
 
                 renderizarProgramas();
                 renderizarTrabajadores();
+                renderizarListaDiariaTrabajadores(); // Nueva función para la pestaña de registro diario
                 renderizarPagosGlobales();
             });
         }
@@ -315,6 +354,7 @@
 
         const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
 
+        // --- FUNCIONES DE PROGRAMAS ---
         function agregarPrograma(e) {
             e.preventDefault();
             const nombre = document.getElementById('prog-nombre').value;
@@ -337,6 +377,7 @@
             });
         }
 
+        // --- FUNCIONES DE TRABAJADORES (PAGO INDIVIDUAL Y GESTIÓN) ---
         function agregarTrabajador(e) {
             e.preventDefault();
             const nombre = document.getElementById('trab-nombre').value;
@@ -378,10 +419,7 @@
             }
         }
 
-        function detenerClic(event) {
-            event.stopPropagation();
-        }
-
+        function detenerClic(event) { event.stopPropagation(); }
         function toggleExtraFields(checkbox) {
             const extraContainer = checkbox.closest('form').querySelector('.extra-fields');
             if (checkbox.checked) { extraContainer.classList.add('active'); } 
@@ -457,13 +495,14 @@
             toggleExtraFields(form.querySelector('.asis-toggle-extra'));
 
             const btnSubmit = form.querySelector('.btn-submit-asis');
-            btnSubmit.innerText = "Cerrar y Agregar Jornada";
+            btnSubmit.innerText = "Agregar Corrección Manual a Pendientes";
             btnSubmit.style.backgroundColor = "var(--primary)";
             
             const btnCancel = form.querySelector('.btn-cancel');
             if (btnCancel) btnCancel.remove();
         }
 
+        // Lógica para guardar desde el panel individual (Correcciones o días aislados)
         function agregarAsistencia(e, trabajadorId) {
             e.preventDefault();
             const form = e.target;
@@ -499,18 +538,14 @@
             if (noAlmuerzo) { montoExtras += 5000; desgloseExtras.push("Sin almuerzo (+$5.000)"); }
             if (cantInvitados > 0) { const totInv = cantInvitados * 1000; montoExtras += totInv; desgloseExtras.push(`${cantInvitados} Invitado(s) (+$${totInv.toLocaleString('es-CL')})`); }
             
-            // LÓGICA DE HORAS EXTRA DINÁMICA
             if (horasExtra > 0) {
-                const valorAUsar = valorHoraExtra > 0 ? valorHoraExtra : 3000; // Por defecto $3.000 si se les olvida llenarlo
+                const valorAUsar = valorHoraExtra > 0 ? valorHoraExtra : 3000; 
                 const totHoras = horasExtra * valorAUsar;
                 montoExtras += totHoras;
                 desgloseExtras.push(`${horasExtra} Hora(s) extra (+$${totHoras.toLocaleString('es-CL')})`);
             }
 
-            if (movilizacion > 0) { 
-                montoExtras += movilizacion; 
-                desgloseExtras.push(`Movilización/Uber (+$${movilizacion.toLocaleString('es-CL')})`); 
-            }
+            if (movilizacion > 0) { montoExtras += movilizacion; desgloseExtras.push(`Movilización (+$${movilizacion.toLocaleString('es-CL')})`); }
             if (montoExtra > 0) { montoExtras += montoExtra; desgloseExtras.push(`${detalleExtra || 'Bono extra'} (+$${montoExtra.toLocaleString('es-CL')})`); }
 
             const totalDia = montoBaseAplicado + montoExtras;
@@ -547,6 +582,111 @@
             }
         }
 
+        // --- NUEVA LÓGICA: REGISTRO DIARIO MASIVO ---
+        function renderizarListaDiariaTrabajadores() {
+            const selectProg = document.getElementById('diario-programa');
+            const contenedorDiario = document.getElementById('lista-diaria-trabajadores');
+            
+            // Llenar selector de programas
+            selectProg.innerHTML = '<option value="">Seleccione un programa...</option>' + 
+                programas.map(p => `<option value="${p.id}">${p.nombre} (Base: $${p.monto.toLocaleString('es-CL')})</option>`).join('');
+
+            // Construir lista de trabajadores con Checkbox y mini formulario de extras
+            if (trabajadores.length === 0) {
+                contenedorDiario.innerHTML = '<p style="color: var(--text-light);">No hay trabajadores registrados en el sistema aún.</p>';
+                return;
+            }
+
+            contenedorDiario.innerHTML = trabajadores.map(trab => `
+                <div class="worker-daily-card">
+                    <div class="checkbox-group" style="margin-bottom: 0;">
+                        <input type="checkbox" id="check-diario-${trab.id}" class="diario-checkbox" value="${trab.id}" onchange="togglePanelDiario('${trab.id}')" style="width: 1.5rem; height: 1.5rem;">
+                        <label for="check-diario-${trab.id}" style="font-size: 1.2rem; font-weight: bold; color: var(--text); padding-left: 0.5rem; width: 100%;">${trab.nombre}</label>
+                    </div>
+
+                    <div id="panel-diario-${trab.id}" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border);">
+                        <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 0; margin-bottom: 0.5rem;">Opcional: Agregar adicionales a este trabajador por el día de hoy.</p>
+                        <div class="form-grid" style="align-items: center;">
+                            <div class="checkbox-group"><input type="checkbox" id="diario-almuerzo-${trab.id}"><label for="diario-almuerzo-${trab.id}">No almorzó (+$5.000)</label></div>
+                            <div class="input-group"><label>Invitados</label><input type="number" id="diario-invitados-${trab.id}" min="0" value="0" style="max-width: 80px;"></div>
+                            <div class="input-group"><label>Horas Extra</label><input type="number" id="diario-horas-${trab.id}" min="0" step="0.5" value="0" style="max-width: 80px;"></div>
+                            <div class="input-group"><label>Valor Hora</label><input type="number" id="diario-valorhora-${trab.id}" min="0" value="0" style="max-width: 90px;"></div>
+                            <div class="input-group"><label>Uber/Movil.</label><input type="number" id="diario-movil-${trab.id}" min="0" value="0" style="max-width: 100px;"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function togglePanelDiario(id) {
+            const panel = document.getElementById('panel-diario-' + id);
+            const checkbox = document.getElementById('check-diario-' + id);
+            panel.style.display = checkbox.checked ? 'block' : 'none';
+        }
+
+        function guardarAsistenciaDiaria(e) {
+            e.preventDefault();
+            
+            const fecha = document.getElementById('diario-fecha').value;
+            const diaNombre = document.getElementById('diario-dianombre').value;
+            const programaId = document.getElementById('diario-programa').value;
+            const programa = programas.find(p => p.id === programaId);
+
+            if (!programa) return alert("Selecciona el programa que se grabó.");
+
+            const checkboxesSeleccionados = document.querySelectorAll('.diario-checkbox:checked');
+            if (checkboxesSeleccionados.length === 0) {
+                return alert("Debes marcar al menos a un trabajador que haya asistido.");
+            }
+
+            // Procesar cada trabajador seleccionado
+            checkboxesSeleccionados.forEach(chk => {
+                const trabId = chk.value;
+                const trabajador = trabajadores.find(t => t.id === trabId);
+                
+                const noAlmuerzo = document.getElementById(`diario-almuerzo-${trabId}`).checked;
+                const cantInvitados = parseInt(document.getElementById(`diario-invitados-${trabId}`).value) || 0;
+                const horasExtra = parseFloat(document.getElementById(`diario-horas-${trabId}`).value) || 0;
+                const valorHoraExtra = parseFloat(document.getElementById(`diario-valorhora-${trabId}`).value) || 0;
+                const movilizacion = parseFloat(document.getElementById(`diario-movil-${trabId}`).value) || 0;
+
+                let montoExtras = 0; 
+                let desgloseExtras = [];
+
+                if (noAlmuerzo) { montoExtras += 5000; desgloseExtras.push("Sin almuerzo (+$5.000)"); }
+                if (cantInvitados > 0) { const totInv = cantInvitados * 1000; montoExtras += totInv; desgloseExtras.push(`${cantInvitados} Invitado(s) (+$${totInv.toLocaleString('es-CL')})`); }
+                if (horasExtra > 0) {
+                    const valorAUsar = valorHoraExtra > 0 ? valorHoraExtra : 3000; 
+                    const totHoras = horasExtra * valorAUsar;
+                    montoExtras += totHoras;
+                    desgloseExtras.push(`${horasExtra} Hora(s) extra (+$${totHoras.toLocaleString('es-CL')})`);
+                }
+                if (movilizacion > 0) { montoExtras += movilizacion; desgloseExtras.push(`Movilización (+$${movilizacion.toLocaleString('es-CL')})`); }
+
+                const totalDia = programa.monto + montoExtras;
+
+                const nuevaJornada = {
+                    id: generateId(), 
+                    diaNombre, fecha, programaNombre: programa.nombre, programaId: programa.id,
+                    montoBase: programa.monto, montoExtras: montoExtras, detalleExtras: desgloseExtras.join(' | '), 
+                    totalDia: totalDia, montoCobrado: totalDia,
+                    noAlmuerzo, cantInvitados, horasExtra, valorHoraExtra, movilizacion, montoExtraManual: 0, detalleExtraManual: "",
+                    soloInvitados: false
+                };
+
+                if (!trabajador.asistencias) trabajador.asistencias = [];
+                trabajador.asistencias.push(nuevaJornada);
+            });
+
+            guardarDatos();
+            alert(`✅ Asistencia registrada con éxito para ${checkboxesSeleccionados.length} trabajador(es).`);
+            
+            // Limpiar formulario y ocultar paneles
+            e.target.reset();
+            document.querySelectorAll('[id^="panel-diario-"]').forEach(panel => panel.style.display = 'none');
+        }
+
+        // --- FUNCIONES DE PAGO ---
         function realizarPagoTrabajador(trabajadorId) {
             const trabajador = trabajadores.find(t => t.id === trabajadorId);
             if (!trabajador || !trabajador.asistencias || trabajador.asistencias.length === 0) return alert("No hay montos pendientes por pagar.");
@@ -636,8 +776,11 @@
                         </div>
                         
                         <div id="detalles-${trab.id}" style="display: none; padding: 1.5rem; background-color: var(--card-bg); border-top: 2px solid var(--primary);">
+                            
+                            <h3 class="section-title">Corrección Manual Individual</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 1rem;">Usa este panel solo si necesitas editar un día específico o agregar un turno antiguo a este trabajador.</p>
+                            
                             <form id="form-asis-${trab.id}" class="attendance-form" onsubmit="agregarAsistencia(event, '${trab.id}')">
-                                <h3 class="section-title">1. Datos de la jornada</h3>
                                 <div class="form-grid">
                                     <div class="input-group"><label>Fecha</label><input type="date" class="asis-fecha" required></div>
                                     <div class="input-group"><label>Día</label><input type="text" class="asis-dianombre" placeholder="Lunes" required></div>
@@ -650,14 +793,11 @@
                                         <label for="solo-inv-${trab.id}" style="color: #ef4444; font-weight: bold;">🚨 El trabajador NO asistió (Cobrar $0 de base, solo pagar extras)</label>
                                     </div>
                                 </div>
-                                <h3 class="section-title">2. Adicionales</h3>
-                                <div class="form-grid">
+                                <div class="form-grid" style="margin-top: 1rem;">
                                     <div class="checkbox-group"><input type="checkbox" id="almuerzo-${trab.id}" class="asis-noalmuerzo"><label for="almuerzo-${trab.id}">No almorzó (+$5.000)</label></div>
-                                    <div class="input-group"><label>Invitados ($1.000 c/u)</label><input type="number" class="asis-invitados" min="0" value="0" style="max-width: 120px;"></div>
-                                    
+                                    <div class="input-group"><label>Invitados ($1k c/u)</label><input type="number" class="asis-invitados" min="0" value="0" style="max-width: 120px;"></div>
                                     <div class="input-group"><label>Cant. Horas Extra</label><input type="number" class="asis-horas-extra" min="0" step="0.5" value="0" style="max-width: 120px;"></div>
                                     <div class="input-group"><label>Valor Hora ($)</label><input type="number" class="asis-valor-hora" min="0" value="0" style="max-width: 120px;"></div>
-                                    
                                     <div class="input-group"><label>Movilización ($)</label><input type="number" class="asis-movilizacion" min="0" value="0" style="max-width: 120px;"></div>
                                 </div>
                                 <div class="checkbox-group" style="margin-top: 1rem;">
@@ -668,7 +808,7 @@
                                     <div class="input-group"><label>Monto Extra ($)</label><input type="number" class="asis-monto-extra" min="0" placeholder="Ej. 15000"></div>
                                     <div class="input-group"><label>Motivo Extra</label><input type="text" class="asis-detalle-extra" placeholder="Ej. Transporte..."></div>
                                 </div>
-                                <button type="submit" class="btn-full btn-submit-asis">Cerrar y Agregar Jornada</button>
+                                <button type="submit" class="btn-full btn-submit-asis">Agregar Corrección Manual a Pendientes</button>
                             </form>
                             
                             <h3 class="section-title" style="margin-top: 2rem;">Jornadas Pendientes por Pagar</h3>
