@@ -353,6 +353,7 @@
         }
 
         const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
+        const VALOR_TICKET_ALMUERZO = 5000; // Descuento por cada ticket de almuerzo de la jornada
 
         // --- FUNCIONES DE PROGRAMAS ---
         function agregarPrograma(e) {
@@ -451,6 +452,7 @@
             if (chkSolo) chkSolo.checked = asis.soloInvitados || false;
 
             form.querySelector('.asis-noalmuerzo').checked = asis.noAlmuerzo || false;
+            form.querySelector('.asis-ticket-almuerzo').checked = (asis.ticketsAlmuerzo || 0) > 0;
             form.querySelector('.asis-invitados').value = asis.cantInvitados || 0;
             
             form.querySelector('.asis-horas-extra').value = asis.horasExtra || 0;
@@ -514,8 +516,9 @@
             const soloInvitados = chkSolo ? chkSolo.checked : false;
             
             const noAlmuerzo = form.querySelector('.asis-noalmuerzo').checked;
+            const ticketsAlmuerzo = form.querySelector('.asis-ticket-almuerzo').checked ? 1 : 0;
             const cantInvitados = parseInt(form.querySelector('.asis-invitados').value) || 0;
-            
+
             const horasExtra = parseFloat(form.querySelector('.asis-horas-extra').value) || 0;
             const inputValorHora = form.querySelector('.asis-valor-hora');
             const valorHoraExtra = inputValorHora ? (parseFloat(inputValorHora.value) || 0) : 0;
@@ -548,12 +551,15 @@
             if (movilizacion > 0) { montoExtras += movilizacion; desgloseExtras.push(`Movilización (+$${movilizacion.toLocaleString('es-CL')})`); }
             if (montoExtra > 0) { montoExtras += montoExtra; desgloseExtras.push(`${detalleExtra || 'Bono extra'} (+$${montoExtra.toLocaleString('es-CL')})`); }
 
-            const totalDia = montoBaseAplicado + montoExtras;
+            const descuentoAlmuerzo = ticketsAlmuerzo * VALOR_TICKET_ALMUERZO;
+
+            const totalDia = montoBaseAplicado + montoExtras - descuentoAlmuerzo;
             const editId = form.dataset.editId;
             const nuevaJornada = {
-                id: editId ? editId : generateId(), 
+                id: editId ? editId : generateId(),
                 diaNombre, fecha, programaNombre: programa.nombre, programaId: programa.id,
-                montoBase: montoBaseAplicado, montoExtras: montoExtras, detalleExtras: desgloseExtras.join(' | '), 
+                montoBase: montoBaseAplicado, montoExtras: montoExtras, detalleExtras: desgloseExtras.join(' | '),
+                ticketsAlmuerzo, descuentoAlmuerzo,
                 totalDia: totalDia, montoCobrado: totalDia,
                 noAlmuerzo, cantInvitados, horasExtra, valorHoraExtra, movilizacion, montoExtraManual: montoExtra, detalleExtraManual: detalleExtra,
                 soloInvitados: soloInvitados
@@ -607,7 +613,8 @@
                     <div id="panel-diario-${trab.id}" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border);">
                         <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 0; margin-bottom: 0.5rem;">Opcional: Agregar adicionales a este trabajador por el día de hoy.</p>
                         <div class="form-grid" style="align-items: center;">
-                            <div class="checkbox-group"><input type="checkbox" id="diario-almuerzo-${trab.id}"><label for="diario-almuerzo-${trab.id}">No almorzó (+$5.000)</label></div>
+                            <div class="checkbox-group"><input type="checkbox" id="diario-almuerzo-${trab.id}" onchange="if(this.checked) document.getElementById('diario-ticket-${trab.id}').checked = false"><label for="diario-almuerzo-${trab.id}">No almorzó (+$5.000)</label></div>
+                            <div class="checkbox-group"><input type="checkbox" id="diario-ticket-${trab.id}" onchange="if(this.checked) document.getElementById('diario-almuerzo-${trab.id}').checked = false"><label for="diario-ticket-${trab.id}">Pidió ticket de almuerzo (-$5.000)</label></div>
                             <div class="input-group"><label>Invitados</label><input type="number" id="diario-invitados-${trab.id}" min="0" value="0" style="max-width: 80px;"></div>
                             <div class="input-group"><label>Horas Extra</label><input type="number" id="diario-horas-${trab.id}" min="0" step="0.5" value="0" style="max-width: 80px;"></div>
                             <div class="input-group"><label>Valor Hora</label><input type="number" id="diario-valorhora-${trab.id}" min="0" value="0" style="max-width: 90px;"></div>
@@ -645,6 +652,7 @@
                 const trabajador = trabajadores.find(t => t.id === trabId);
                 
                 const noAlmuerzo = document.getElementById(`diario-almuerzo-${trabId}`).checked;
+                const ticketsAlmuerzo = document.getElementById(`diario-ticket-${trabId}`).checked ? 1 : 0;
                 const cantInvitados = parseInt(document.getElementById(`diario-invitados-${trabId}`).value) || 0;
                 const horasExtra = parseFloat(document.getElementById(`diario-horas-${trabId}`).value) || 0;
                 const valorHoraExtra = parseFloat(document.getElementById(`diario-valorhora-${trabId}`).value) || 0;
@@ -663,12 +671,15 @@
                 }
                 if (movilizacion > 0) { montoExtras += movilizacion; desgloseExtras.push(`Movilización (+$${movilizacion.toLocaleString('es-CL')})`); }
 
-                const totalDia = programa.monto + montoExtras;
+                const descuentoAlmuerzo = ticketsAlmuerzo * VALOR_TICKET_ALMUERZO;
+
+                const totalDia = programa.monto + montoExtras - descuentoAlmuerzo;
 
                 const nuevaJornada = {
-                    id: generateId(), 
+                    id: generateId(),
                     diaNombre, fecha, programaNombre: programa.nombre, programaId: programa.id,
-                    montoBase: programa.monto, montoExtras: montoExtras, detalleExtras: desgloseExtras.join(' | '), 
+                    montoBase: programa.monto, montoExtras: montoExtras, detalleExtras: desgloseExtras.join(' | '),
+                    ticketsAlmuerzo, descuentoAlmuerzo,
                     totalDia: totalDia, montoCobrado: totalDia,
                     noAlmuerzo, cantInvitados, horasExtra, valorHoraExtra, movilizacion, montoExtraManual: 0, detalleExtraManual: "",
                     soloInvitados: false
@@ -716,6 +727,7 @@
                 const base = j.montoBase !== undefined ? j.montoBase : subtotal;
                 contenido += `\n> ${j.fecha} (${j.diaNombre})\n  Programa: ${j.programaNombre}\n  Monto Base: $${base.toLocaleString('es-CL')}\n`;
                 if (j.montoExtras > 0) { contenido += `  Adicionales: $${j.montoExtras.toLocaleString('es-CL')} (${j.detalleExtras})\n`; }
+                if (j.descuentoAlmuerzo > 0) { contenido += `  Descuento almuerzo: -$${j.descuentoAlmuerzo.toLocaleString('es-CL')} (ticket de almuerzo)\n`; }
                 contenido += `  Subtotal Jornada: $${subtotal.toLocaleString('es-CL')}\n`;
             });
             contenido += `\n====================================\nDocumento generado automáticamente.`;
@@ -744,11 +756,16 @@
                     const base = asis.montoBase !== undefined ? asis.montoBase : asis.montoCobrado;
                     const totalD = asis.totalDia !== undefined ? asis.totalDia : asis.montoCobrado;
                     const strExtras = asis.detalleExtras ? asis.detalleExtras : (asis.montoExtras ? 'Extras aplicados' : 'Ninguno');
+                    const descAlm = asis.descuentoAlmuerzo || 0;
+                    const celdaDescuento = descAlm > 0
+                        ? `<span style="color:#ef4444; font-weight:600;">-$${descAlm.toLocaleString('es-CL')}</span><span class="text-sm">Ticket de almuerzo</span>`
+                        : '$0';
                     return `<tr>
                                 <td>${asis.fecha}<span class="text-sm">${asis.diaNombre}</span></td>
                                 <td>${asis.programaNombre}</td>
                                 <td>$${base.toLocaleString('es-CL')}</td>
                                 <td>$${(asis.montoExtras || 0).toLocaleString('es-CL')}<span class="text-sm">${strExtras}</span></td>
+                                <td>${celdaDescuento}</td>
                                 <td class="monto-total-td">$${totalD.toLocaleString('es-CL')}</td>
                                 <td style="white-space: nowrap;">
                                     <button type="button" class="btn-small-outline" style="padding: 0.4rem; height: auto; margin-right: 0.25rem;" onclick="prepararEdicionAsistencia('${trab.id}', '${asis.id}')">✏️</button>
@@ -757,7 +774,7 @@
                             </tr>`;
                 }).join('');
 
-                if (trab.asistencias.length === 0) filasAsistencias = `<tr><td colspan="6" style="text-align:center; color: var(--text-light); padding: 2rem;">No hay asistencias pendientes registradas.</td></tr>`;
+                if (trab.asistencias.length === 0) filasAsistencias = `<tr><td colspan="7" style="text-align:center; color: var(--text-light); padding: 2rem;">No hay asistencias pendientes registradas.</td></tr>`;
 
                 contenedor.innerHTML += `
                     <div class="card" style="padding: 0;">
@@ -794,7 +811,8 @@
                                     </div>
                                 </div>
                                 <div class="form-grid" style="margin-top: 1rem;">
-                                    <div class="checkbox-group"><input type="checkbox" id="almuerzo-${trab.id}" class="asis-noalmuerzo"><label for="almuerzo-${trab.id}">No almorzó (+$5.000)</label></div>
+                                    <div class="checkbox-group"><input type="checkbox" id="almuerzo-${trab.id}" class="asis-noalmuerzo" onchange="if(this.checked) this.closest('form').querySelector('.asis-ticket-almuerzo').checked = false"><label for="almuerzo-${trab.id}">No almorzó (+$5.000)</label></div>
+                                    <div class="checkbox-group"><input type="checkbox" id="ticket-${trab.id}" class="asis-ticket-almuerzo" onchange="if(this.checked) this.closest('form').querySelector('.asis-noalmuerzo').checked = false"><label for="ticket-${trab.id}">Pidió ticket de almuerzo (-$5.000)</label></div>
                                     <div class="input-group"><label>Invitados ($1k c/u)</label><input type="number" class="asis-invitados" min="0" value="0" style="max-width: 120px;"></div>
                                     <div class="input-group"><label>Cant. Horas Extra</label><input type="number" class="asis-horas-extra" min="0" step="0.5" value="0" style="max-width: 120px;"></div>
                                     <div class="input-group"><label>Valor Hora ($)</label><input type="number" class="asis-valor-hora" min="0" value="0" style="max-width: 120px;"></div>
@@ -814,7 +832,7 @@
                             <h3 class="section-title" style="margin-top: 2rem;">Jornadas Pendientes por Pagar</h3>
                             <div class="table-responsive">
                                 <table>
-                                    <thead><tr><th>Fecha y Día</th><th>Programa</th><th>Monto Base</th><th>Extras</th><th>Total Día</th><th>Acción</th></tr></thead>
+                                    <thead><tr><th>Fecha y Día</th><th>Programa</th><th>Monto Base</th><th>Extras</th><th>Descuentos</th><th>Total Día</th><th>Acción</th></tr></thead>
                                     <tbody>${filasAsistencias}</tbody>
                                 </table>
                             </div>
