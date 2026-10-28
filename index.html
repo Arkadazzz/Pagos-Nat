@@ -181,8 +181,8 @@
                             </div>
                         </div>
 
-                        <h3 style="color: var(--primary);">2. Seleccionar Trabajadores que Asistieron</h3>
-                        <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 1rem;">Marca la casilla de quienes vinieron. Al marcar a alguien, podrás agregarle horas extras o bonos individuales si corresponde.</p>
+                        <h3 style="color: var(--primary);">2. Seleccionar Trabajadores que Asistieron o Trajeron Invitados</h3>
+                        <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 1rem;">Marca la casilla de quienes vinieron o trajeron invitados. Si alguien no vino pero trajo invitados, márcalo y activa "No asistió, solo trajo invitados". Al marcar a alguien, podrás agregarle horas extras o bonos individuales si corresponde.</p>
                         
                         <div id="lista-diaria-trabajadores">
                             <!-- Checkboxes y mini-formularios llenados con JS -->
@@ -611,6 +611,10 @@
                     </div>
 
                     <div id="panel-diario-${trab.id}" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border);">
+                        <div class="checkbox-group" style="margin-bottom: 0.5rem;">
+                            <input type="checkbox" id="diario-noasistio-${trab.id}" onchange="toggleNoAsistioDiario('${trab.id}')">
+                            <label for="diario-noasistio-${trab.id}" style="color: #ef4444; font-weight: bold;">🚨 No asistió, solo trajo invitados (base $0, solo se pagan los invitados y extras)</label>
+                        </div>
                         <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 0; margin-bottom: 0.5rem;">Opcional: Agregar adicionales a este trabajador por el día de hoy.</p>
                         <div class="form-grid" style="align-items: center;">
                             <div class="checkbox-group"><input type="checkbox" id="diario-almuerzo-${trab.id}" onchange="if(this.checked) document.getElementById('diario-ticket-${trab.id}').checked = false"><label for="diario-almuerzo-${trab.id}">No almorzó <span style="white-space:nowrap; color:var(--success); font-weight:700;">(suma +$5.000)</span></label></div>
@@ -631,6 +635,17 @@
             panel.style.display = checkbox.checked ? 'block' : 'none';
         }
 
+        // Si no asistió, no corresponde ni "No almorzó" ni ticket de almuerzo
+        function toggleNoAsistioDiario(id) {
+            const noAsistio = document.getElementById('diario-noasistio-' + id).checked;
+            ['diario-almuerzo-', 'diario-ticket-'].forEach(pref => {
+                const chk = document.getElementById(pref + id);
+                if (noAsistio) chk.checked = false;
+                chk.disabled = noAsistio;
+            });
+            if (noAsistio) document.getElementById('diario-invitados-' + id).focus();
+        }
+
         function guardarAsistenciaDiaria(e) {
             e.preventDefault();
             
@@ -646,13 +661,26 @@
                 return alert("Debes marcar al menos a un trabajador que haya asistido.");
             }
 
+            // Quien no asistió debe tener al menos un invitado
+            for (const chk of checkboxesSeleccionados) {
+                const id = chk.value;
+                const noVino = document.getElementById(`diario-noasistio-${id}`).checked;
+                const inv = parseInt(document.getElementById(`diario-invitados-${id}`).value) || 0;
+                if (noVino && inv <= 0) {
+                    const t = trabajadores.find(x => x.id === id);
+                    document.getElementById(`diario-invitados-${id}`).focus();
+                    return alert(`${t ? t.nombre : 'Un trabajador'} está marcado como "No asistió, solo trajo invitados", pero tiene 0 invitados. Ingresa cuántos invitados trajo.`);
+                }
+            }
+
             // Procesar cada trabajador seleccionado
             checkboxesSeleccionados.forEach(chk => {
                 const trabId = chk.value;
                 const trabajador = trabajadores.find(t => t.id === trabId);
                 
-                const noAlmuerzo = document.getElementById(`diario-almuerzo-${trabId}`).checked;
-                const ticketsAlmuerzo = document.getElementById(`diario-ticket-${trabId}`).checked ? 1 : 0;
+                const soloInvitados = document.getElementById(`diario-noasistio-${trabId}`).checked;
+                const noAlmuerzo = soloInvitados ? false : document.getElementById(`diario-almuerzo-${trabId}`).checked;
+                const ticketsAlmuerzo = (!soloInvitados && document.getElementById(`diario-ticket-${trabId}`).checked) ? 1 : 0;
                 const cantInvitados = parseInt(document.getElementById(`diario-invitados-${trabId}`).value) || 0;
                 const horasExtra = parseFloat(document.getElementById(`diario-horas-${trabId}`).value) || 0;
                 const valorHoraExtra = parseFloat(document.getElementById(`diario-valorhora-${trabId}`).value) || 0;
@@ -660,7 +688,9 @@
 
                 let montoExtras = 0; 
                 let desgloseExtras = [];
+                const montoBaseAplicado = soloInvitados ? 0 : programa.monto;
 
+                if (soloInvitados) { desgloseExtras.push("Inasistencia (Base $0)"); }
                 if (noAlmuerzo) { montoExtras += 5000; desgloseExtras.push("Sin almuerzo (+$5.000)"); }
                 if (cantInvitados > 0) { const totInv = cantInvitados * 1000; montoExtras += totInv; desgloseExtras.push(`${cantInvitados} Invitado(s) (+$${totInv.toLocaleString('es-CL')})`); }
                 if (horasExtra > 0) {
@@ -673,16 +703,16 @@
 
                 const descuentoAlmuerzo = ticketsAlmuerzo * VALOR_TICKET_ALMUERZO;
 
-                const totalDia = programa.monto + montoExtras - descuentoAlmuerzo;
+                const totalDia = montoBaseAplicado + montoExtras - descuentoAlmuerzo;
 
                 const nuevaJornada = {
                     id: generateId(),
                     diaNombre, fecha, programaNombre: programa.nombre, programaId: programa.id,
-                    montoBase: programa.monto, montoExtras: montoExtras, detalleExtras: desgloseExtras.join(' | '),
+                    montoBase: montoBaseAplicado, montoExtras: montoExtras, detalleExtras: desgloseExtras.join(' | '),
                     ticketsAlmuerzo, descuentoAlmuerzo,
                     totalDia: totalDia, montoCobrado: totalDia,
                     noAlmuerzo, cantInvitados, horasExtra, valorHoraExtra, movilizacion, montoExtraManual: 0, detalleExtraManual: "",
-                    soloInvitados: false
+                    soloInvitados
                 };
 
                 if (!trabajador.asistencias) trabajador.asistencias = [];
@@ -695,6 +725,7 @@
             // Limpiar formulario y ocultar paneles
             e.target.reset();
             document.querySelectorAll('[id^="panel-diario-"]').forEach(panel => panel.style.display = 'none');
+            document.querySelectorAll('[id^="diario-almuerzo-"], [id^="diario-ticket-"]').forEach(chk => chk.disabled = false);
         }
 
         // --- FUNCIONES DE PAGO ---
